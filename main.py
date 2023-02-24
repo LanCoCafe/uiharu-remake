@@ -2,6 +2,7 @@ import asyncio
 import logging
 from os import getenv
 
+
 from disnake import Intents, Message
 from disnake.ext.commands import Bot as OriginalBot
 from playwright.async_api import Page, async_playwright, Playwright
@@ -10,13 +11,13 @@ logging.basicConfig(level=logging.INFO)
 
 
 async def setup_character_ai(playwright: Playwright,
-                             chara_id: str = "8aCbl3PNZ_sFxtfPzjJZ8fsSW7TZdFmluCmqDRShBD0") -> Page:
+                             chara_id: str = "8aCbl3PNZ_sFxtfPzjJZ8fsSW7TZdFmluCmqDRShBD0"):
     browser = await playwright.firefox.launch(headless=True)
     context = await browser.new_context()
     page = await context.new_page()
     await page.goto('https://beta.character.ai/chat?char=' + chara_id)
     await page.get_by_role("button", name="Accept").click()
-    return page
+    return page, browser
 
 
 async def ask(page: Page, message: str) -> str:
@@ -33,11 +34,8 @@ class Question:
         self.question = question
         self.answer = None
 
-    async def ask(self, page: Page):
-        try:
-            self.answer = await ask(page, self.question)
-        except Exception as error:
-            self.answer =f"錯誤：```{error}```"
+    async def ask(self, page):
+        self.answer = await ask(page, self.question)
         return self.answer
 
 
@@ -55,6 +53,7 @@ class Uiharu(OriginalBot):
 
         self.playwright = None
         self.page = None
+        self.browser = None
         self.question_queue = []
 
     async def asking_loop(self):
@@ -62,13 +61,18 @@ class Uiharu(OriginalBot):
             await asyncio.sleep(1)
             if self.question_queue:
                 question = self.question_queue.pop(0)
-                await question.ask(self.page)
+                try:
+                    await question.ask(self.page)
+                except Exception as error:
+                    await self.browser.close()
+                    self.page, self.browser = await setup_character_ai(self.playwright, getenv("CHARACTER_ID"))
+                    question.answer = f"錯誤：```{error}```"
 
     async def on_ready(self):
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
 
         self.playwright = await async_playwright().start()
-        self.page = await setup_character_ai(self.playwright, getenv("CHARACTER_ID"))
+        self.page, self.browser = await setup_character_ai(self.playwright, getenv("CHARACTER_ID"))
 
         self.loop.create_task(self.asking_loop())
 
