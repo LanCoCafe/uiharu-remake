@@ -62,7 +62,7 @@ class Uiharu(OriginalBot):
                 await question.ask(self.page)
 
     async def on_ready(self):
-        print(f"Logged in as {self.user} (ID: {self.user.id})")
+        logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
 
         self.playwright = await async_playwright().start()
         self.page = await setup_character_ai(self.playwright, getenv("CHARACTER_ID"))
@@ -74,7 +74,7 @@ class Uiharu(OriginalBot):
             return
 
         if self.user.id in [mention.id for mention in message.mentions]:
-            print(f"New question from {message.author}: {message.content}")
+            logging.info(f"New question from {message.author}: {message.content}")
 
             question = Question(message.content.replace(f"<@{self.user.id}>", ""))
 
