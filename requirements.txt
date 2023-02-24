@@ -1,3 +1,3 @@
 playwright
 disnake
-opencc-python
+OpenCC
