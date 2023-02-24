@@ -10,7 +10,7 @@ from playwright.async_api import Page, async_playwright, Playwright
 
 logging.basicConfig(level=logging.INFO)
 
-cc = OpenCC("s2tw.json")
+cc = OpenCC("s2t.json")
 
 async def setup_character_ai(playwright: Playwright,
                              chara_id: str = "8aCbl3PNZ_sFxtfPzjJZ8fsSW7TZdFmluCmqDRShBD0"):
