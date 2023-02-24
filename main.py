@@ -34,7 +34,10 @@ class Question:
         self.answer = None
 
     async def ask(self, page: Page):
-        self.answer = await ask(page, self.question)
+        try:
+            self.answer = await ask(page, self.question)
+        except Exception as error:
+            self.answer =f"錯誤：```{error}```"
         return self.answer
 
 
