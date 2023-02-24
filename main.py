@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from os import getenv
+from opencc import OpenCC
 
 
 from disnake import Intents, Message
@@ -9,6 +10,7 @@ from playwright.async_api import Page, async_playwright, Playwright
 
 logging.basicConfig(level=logging.INFO)
 
+cc = OpenCC("s2t")
 
 async def setup_character_ai(playwright: Playwright,
                              chara_id: str = "8aCbl3PNZ_sFxtfPzjJZ8fsSW7TZdFmluCmqDRShBD0"):
@@ -35,7 +37,8 @@ class Question:
         self.answer = None
 
     async def ask(self, page):
-        self.answer = await ask(page, self.question)
+        result = await ask(page, self.question)
+        self.answer = cc.convert(result)
         return self.answer
 
 
