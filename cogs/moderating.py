@@ -1,4 +1,5 @@
-from disnake import ApplicationCommandInteraction, TextInputStyle, MessageCommandInteraction, ModalInteraction
+from disnake import ApplicationCommandInteraction, TextInputStyle, MessageCommandInteraction, ModalInteraction, Option, \
+    OptionType
 from disnake.ext import commands
 from disnake.ui import Modal, TextInput
 
@@ -9,12 +10,22 @@ class Moderating(commands.Cog):
     def __init__(self, bot):
         self.bot: Uiharu = bot
 
-    @commands.slash_command(name="reset", description="重設初春的記憶")
-    async def reset(self, interaction: ApplicationCommandInteraction):
+    @commands.slash_command(
+        name="reset", description="重設初春的記憶",
+        options=[
+            Option(
+                name="ephemeral",
+                description="是否要隱藏訊息",
+                type=OptionType.boolean,
+                required=False
+            )
+        ]
+    )
+    async def reset(self, interaction: ApplicationCommandInteraction, ephemeral: bool = True):
         if not interaction.author.id == self.bot.owner_id:
-            return await interaction.response.send_message("你不是我的主人，不能這麼做", ephemeral=True)
+            return await interaction.response.send_message("你不是我的主人，不能這麼做", ephemeral=ephemeral)
 
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=ephemeral)
 
         await self.bot.setup_character_ai()
 
