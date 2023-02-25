@@ -1,4 +1,5 @@
 import logging
+import re
 from os import getenv
 from typing import Tuple
 
@@ -54,6 +55,8 @@ class Uiharu(OriginalBot):
         output_text = await div.inner_text()
 
         result = self.opencc.convert(output_text)
+
+        re.sub("\n+", "\n", result)
 
         return result
 
