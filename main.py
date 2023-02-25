@@ -1,16 +1,18 @@
 import asyncio
 import logging
+import random
 from os import getenv
-from opencc import OpenCC
-
 
 from disnake import Intents, Message
+from disnake.abc import MISSING
 from disnake.ext.commands import Bot as OriginalBot
+from opencc import OpenCC
 from playwright.async_api import Page, async_playwright, Playwright
 
 logging.basicConfig(level=logging.INFO)
 
 cc = OpenCC("s2t.json")
+
 
 async def setup_character_ai(playwright: Playwright,
                              chara_id: str = "8aCbl3PNZ_sFxtfPzjJZ8fsSW7TZdFmluCmqDRShBD0"):
@@ -61,15 +63,29 @@ class Uiharu(OriginalBot):
 
     async def asking_loop(self):
         while True:
-            await asyncio.sleep(1)
+            await asyncio.sleep(random.randint(3, 5))
+
             if self.question_queue:
                 question = self.question_queue.pop(0)
-                try:
-                    await question.ask(self.page)
-                except Exception as error:
-                    await self.browser.close()
-                    self.page, self.browser = await setup_character_ai(self.playwright, getenv("CHARACTER_ID"))
-                    question.answer = f"錯誤：```{error}```"
+
+                last_error: Exception = MISSING
+
+                for i in range(2):
+                    try:
+                        await question.ask(self.page)
+                        break
+
+                    except Exception as error:
+                        last_error = error
+                        await self.browser.close()
+                        self.page, self.browser = await setup_character_ai(self.playwright, getenv("CHARACTER_ID"))
+                        continue
+
+                if not question.answer:
+                    logging.error(f"Failed to ask question {question.question} with error {last_error}")
+                    question.answer = f"錯誤：```{last_error}```"
+
+                return question.answer
 
     async def on_ready(self):
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
