@@ -45,7 +45,7 @@ class Asking(commands.Cog):
 
                 if not question.answer:
                     logging.error(f"Failed to ask question {question.question} with error {last_error}")
-                    question.answer = f"錯誤：```{last_error}```"
+                    question.answer = "`❌ | 發生了一些錯誤，重問一次通常可以解決問題`"
 
     @commands.Cog.listener(name="on_ready")
     async def start_asking_loop(self):
