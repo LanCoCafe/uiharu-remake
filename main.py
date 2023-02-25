@@ -74,13 +74,22 @@ class Uiharu(OriginalBot):
 
                 for i in range(2):
                     try:
+                        logging.info(f"Asking question: {question.question}")
+
                         await question.ask(self.page)
+
+                        logging.info(f"Got response: {question.answer}")
+
                         break
 
                     except Exception as error:
                         last_error = error
+
+                        logging.error(f"Failed to ask question {question.question} with error {error}, retrying...")
+
                         await self.browser.close()
                         self.page, self.browser = await setup_character_ai(self.playwright, getenv("CHARACTER_ID"))
+
                         continue
 
                 if not question.answer:
@@ -103,12 +112,12 @@ class Uiharu(OriginalBot):
             return
 
         if self.user.id in [mention.id for mention in message.mentions]:
-            logging.info(f"New question from {message.author}: {message.content}")
-
             content = message.content.replace(f"<@{self.user.id}>", "")
 
-            if message.author.id in self.nicknames:
+            if ("\\" not in content) and (message.author.id in self.nicknames):
                 content = f"我是{self.nicknames[str(message.author.id)]}，{content}"
+
+            logging.info(f"New question from {message.author}: {message.content}")
 
             question = Question(content)
 
