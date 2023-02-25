@@ -115,6 +115,7 @@ class Uiharu(OriginalBot):
             content = message.content.replace(f"<@{self.user.id}>", "")
 
             if ("\\" not in content) and (str(message.author.id) in self.nicknames):
+                content.replace("\\", "")
                 content = f"我是{self.nicknames[str(message.author.id)]}，{content}"
 
             logging.info(f"New question from {message.author}: {content}")
