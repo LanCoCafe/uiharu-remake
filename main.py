@@ -28,7 +28,7 @@ async def setup_character_ai(playwright: Playwright,
 async def ask(page: Page, message: str) -> str:
     await page.get_by_placeholder("Type a message").fill(message)
     await page.get_by_placeholder("Type a message").press("Enter")
-    await (await page.wait_for_selector('.swiper-button-next')).is_visible()
+    await (await page.wait_for_selector('.swiper-button-next', timeout=60000)).is_visible()
     div = await page.query_selector('div.msg.char-msg')
     output_text = await div.inner_text()
     return output_text
