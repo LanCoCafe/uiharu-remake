@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import random
 from os import getenv
@@ -7,7 +8,7 @@ from disnake import Intents, Message
 from disnake.abc import MISSING
 from disnake.ext.commands import Bot as OriginalBot
 from opencc import OpenCC
-from playwright.async_api import Page, async_playwright, Playwright
+from playwright.async_api import Page, async_playwright, Playwright, Browser
 
 logging.basicConfig(level=logging.INFO)
 
@@ -38,7 +39,7 @@ class Question:
         self.question = question
         self.answer = None
 
-    async def ask(self, page):
+    async def ask(self, page: Page) -> str:
         result = await ask(page, self.question)
         self.answer = cc.convert(result)
         return self.answer
@@ -56,10 +57,11 @@ class Uiharu(OriginalBot):
         """
         super().__init__(intents=Intents.all(), *args, **kwargs)
 
-        self.playwright = None
-        self.page = None
-        self.browser = None
-        self.question_queue = []
+        self.nicknames: dict[str, str] = {}
+        self.playwright: Playwright = MISSING
+        self.page: Page = MISSING
+        self.browser: Browser = MISSING
+        self.question_queue: list[Question] = []
 
     async def asking_loop(self):
         while True:
@@ -85,10 +87,11 @@ class Uiharu(OriginalBot):
                     logging.error(f"Failed to ask question {question.question} with error {last_error}")
                     question.answer = f"錯誤：```{last_error}```"
 
-                return question.answer
-
     async def on_ready(self):
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
+
+        with open("nicknames.json", "r", encoding="utf-8") as f:
+            self.nicknames = json.load(f)
 
         self.playwright = await async_playwright().start()
         self.page, self.browser = await setup_character_ai(self.playwright, getenv("CHARACTER_ID"))
@@ -102,7 +105,12 @@ class Uiharu(OriginalBot):
         if self.user.id in [mention.id for mention in message.mentions]:
             logging.info(f"New question from {message.author}: {message.content}")
 
-            question = Question(message.content.replace(f"<@{self.user.id}>", ""))
+            content = message.content.replace(f"<@{self.user.id}>", "")
+
+            if message.author.id in self.nicknames:
+                content = f"我是{self.nicknames[str(message.author.id)]}，{content}"
+
+            question = Question(content)
 
             self.question_queue.append(question)
 
