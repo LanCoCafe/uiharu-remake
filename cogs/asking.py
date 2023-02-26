@@ -6,7 +6,7 @@ import re
 from os import getenv
 
 from aiohttp import ClientSession
-from disnake import Message, Webhook, AllowedMentions, ButtonStyle, DMChannel
+from disnake import Message, Webhook, ButtonStyle, DMChannel
 from disnake.abc import MISSING
 from disnake.ext import commands
 from disnake.ui import Button
@@ -24,7 +24,9 @@ class Asking(commands.Cog):
 
         self.question_queue: list[Question] = []
 
-        self.webhook: Webhook = Webhook.from_url(getenv("LOG_WEBHOOK"), session=ClientSession())
+        self.webhook: Webhook = Webhook.from_url(
+            getenv("LOG_WEBHOOK"), session=ClientSession(), bot_token=getenv("TOKEN")
+        )
 
     async def asking_loop(self):
         while True:
@@ -54,7 +56,7 @@ class Asking(commands.Cog):
                     question.answer = "❌ | 發生了一些錯誤，重問一次通常可以解決問題"
 
     @commands.Cog.listener(name="on_ready")
-    async def start_asking_loop(self):
+    async def prepare(self):
         self.bot.loop.create_task(self.asking_loop())
 
     @commands.Cog.listener(name="on_message")
@@ -74,25 +76,33 @@ class Asking(commands.Cog):
 
         mentions = re.search("<@(\d+)>", content)
 
-        for match in mentions:
-            if match.group(1) in self.nicknames:
-                content = content.replace(match, self.nicknames[match.group(1)])
+        if mentions:
+            for match in mentions:
+                if match.group(1) in self.nicknames:
+                    content = content.replace(match, self.nicknames[match])
 
-            else:
-                try:
-                    member = message.guild.get_member(match.group(1))
-                    content = content.replace(match, member.display_name)
+                else:
+                    try:
+                        member = message.guild.get_member(match.group(1))
+                        content = content.replace(match, member.display_name)
 
-                except AttributeError:
-                    pass
+                    except AttributeError:
+                        pass
+
+        if message.guild:
+            data_string = f"GUILD_ID={message.guild.id} CHANNEL_ID={message.channel.id} USER_ID={message.author.id}"
+            author_string = f"{message.author} from {message.guild.name} - #{message.channel.name}"
+        else:
+            data_string = f"(DM) USER_ID={message.author.id}"
+            author_string = f"{message.author} from DM"
 
         log_message = await self.webhook.send(
             content=f"{content}\n\n"
-                    f"`GUILD_ID={message.guild.id} CHANNEL_ID={message.channel.id} MEMBER_ID={message.author.id}\n"
-                    f"**Unparsed**:```{message.content}```",
-            username=f"{str(message.author)} from {message.guild.name} - #{message.channel.name}",
+                    f"[Original]({message.jump_url})\n"
+                    f"```{data_string}\n\n==========\n"
+                    f"{message.content}```",
+            username=author_string,
             avatar_url=message.author.avatar.url,
-            allowed_mentions=AllowedMentions.none(),
             components=[Button(label="Go to message", url=message.jump_url, style=ButtonStyle.url)],
             wait=True
         )
@@ -119,15 +129,24 @@ class Asking(commands.Cog):
             mention_author=True
         )
 
-        await log_message.channel.send(
+        await self.webhook.send(
             content=f"{question.answer}\n\n"
-                    f"**Unparsed**:```{question.answer}```",
-            reference=log_message,
-            components=[Button(
-                label="Go to message",
-                url=reply_message.jump_url,
-                style=ButtonStyle.url
-            )]
+                    f"[Replies to]({log_message.jump_url}) | [Original]({reply_message.jump_url})\n"
+                    f"```{question.answer}```",
+            avatar_url=self.bot.user.avatar.url,
+            username=self.bot.user.display_name,
+            components=[
+                Button(
+                    label="Replies to",
+                    url=log_message.jump_url,
+                    style=ButtonStyle.url,
+                ),
+                Button(
+                    label="Go to message",
+                    url=reply_message.jump_url,
+                    style=ButtonStyle.url
+                )
+            ]
         )
 
 
