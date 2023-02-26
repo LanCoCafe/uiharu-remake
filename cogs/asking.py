@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import random
+import re
 
 from disnake import Message
 from disnake.abc import MISSING
@@ -62,6 +63,20 @@ class Asking(commands.Cog):
             if ("\\" not in content) and (str(message.author.id) in self.nicknames):
                 content.replace("\\", "")
                 content = f"我是{self.nicknames[str(message.author.id)]}，{content}"
+
+            mentions = re.search("<@(\d+)>", content)
+
+            for match in mentions:
+                if match.group(1) in self.nicknames:
+                    content = content.replace(match, self.nicknames[match.group(1)])
+
+                else:
+                    try:
+                        member = message.guild.get_member(match.group(1))
+                        content = content.replace(match, member.display_name)
+
+                    except AttributeError:
+                        pass
 
             logging.info(f"New question from {message.author}: {content}")
 
