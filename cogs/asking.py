@@ -106,7 +106,7 @@ class Asking(commands.Cog):
                     f"```{data_string}\n\n==========\n"
                     f"{message.content}```",
             username=author_string,
-            avatar_url=message.author.avatar.url,
+            avatar_url=message.author.avatar.url or message.author.default_avatar.url,
             components=[Button(label="Go to message", url=message.jump_url, style=ButtonStyle.url)],
             wait=True
         )
