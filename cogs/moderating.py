@@ -31,6 +31,14 @@ class Moderating(commands.Cog):
 
         await interaction.edit_original_response("✅ 重設完成")
 
+    @commands.message_command(name="刪除", description="刪除初春的訊息")
+    async def delete(self, interaction: MessageCommandInteraction):
+        if not interaction.author.id == self.bot.owner_id:
+            return await interaction.response.send_message("你不是我的主人，不能這麼做", ephemeral=True)
+
+        await interaction.target.delete()
+        await interaction.response.send_message("✅ 刪除完成", ephemeral=True)
+
     @commands.message_command(name="編輯", description="編輯初春的訊息")
     async def edit(self, interaction: MessageCommandInteraction):
         if not interaction.author.id == self.bot.owner_id:
