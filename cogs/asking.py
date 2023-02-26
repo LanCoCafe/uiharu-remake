@@ -3,10 +3,13 @@ import json
 import logging
 import random
 import re
+from os import getenv
 
-from disnake import Message
+from aiohttp import ClientSession
+from disnake import Message, Webhook, AllowedMentions, ButtonStyle, DMChannel
 from disnake.abc import MISSING
 from disnake.ext import commands
+from disnake.ui import Button
 
 from core.bot import Uiharu
 from core.classes import Question
@@ -20,6 +23,8 @@ class Asking(commands.Cog):
             self.nicknames: dict[str, str] = json.load(f)
 
         self.question_queue: list[Question] = []
+
+        self.webhook: Webhook = Webhook.from_url(getenv("LOG_WEBHOOK"), session=ClientSession())
 
     async def asking_loop(self):
         while True:
@@ -57,48 +62,73 @@ class Asking(commands.Cog):
         if message.author == self.bot.user:
             return
 
-        if self.bot.user.id in [mention.id for mention in message.mentions]:
-            content = message.content.replace(f"<@{self.bot.user.id}>", "")
+        if self.bot.user.id not in [mention.id for mention in message.mentions]:
+            if not isinstance(message.channel, DMChannel):
+                return
 
-            if ("\\" not in content) and (str(message.author.id) in self.nicknames):
-                content.replace("\\", "")
-                content = f"我是{self.nicknames[str(message.author.id)]}，{content}"
+        content = message.content.replace(f"<@{self.bot.user.id}>", "")
 
-            mentions = re.search("<@(\d+)>", content)
+        if ("\\" not in content) and (str(message.author.id) in self.nicknames):
+            content.replace("\\", "")
+            content = f"我是{self.nicknames[str(message.author.id)]}，{content}"
 
-            for match in mentions:
-                if match.group(1) in self.nicknames:
-                    content = content.replace(match, self.nicknames[match.group(1)])
+        mentions = re.search("<@(\d+)>", content)
 
-                else:
-                    try:
-                        member = message.guild.get_member(match.group(1))
-                        content = content.replace(match, member.display_name)
+        for match in mentions:
+            if match.group(1) in self.nicknames:
+                content = content.replace(match, self.nicknames[match.group(1)])
 
-                    except AttributeError:
-                        pass
+            else:
+                try:
+                    member = message.guild.get_member(match.group(1))
+                    content = content.replace(match, member.display_name)
 
-            logging.info(f"New question from {message.author}: {content}")
+                except AttributeError:
+                    pass
 
-            question = Question(content)
+        log_message = await self.webhook.send(
+            content=f"{content}\n\n"
+                    f"`GUILD_ID={message.guild.id} CHANNEL_ID={message.channel.id} MEMBER_ID={message.author.id}\n"
+                    f"**Unparsed**:```{message.content}```",
+            username=f"{str(message.author)} from {message.guild.name} - #{message.channel.name}",
+            avatar_url=message.author.avatar.url,
+            allowed_mentions=AllowedMentions.none(),
+            components=[Button(label="Go to message", url=message.jump_url, style=ButtonStyle.url)],
+            wait=True
+        )
 
-            self.question_queue.append(question)
+        logging.info(f"New question from {message.author}: {content}")
 
-            timer = 0
+        question = Question(content)
 
-            while not question.answer:
-                await asyncio.sleep(1)
+        self.question_queue.append(question)
 
-                if timer % 9 == 0 or timer == 0:  # Trigger typing for every 9 seconds
-                    await message.channel.trigger_typing()
+        timer = 0
 
-                timer += 1
+        while not question.answer:
+            await asyncio.sleep(1)
 
-            await message.channel.send(
-                question.answer,
-                reference=message,
-                mention_author=True
-            )
+            if timer % 9 == 0 or timer == 0:  # Trigger typing for every 9 seconds
+                await message.channel.trigger_typing()
+
+            timer += 1
+
+        reply_message = await message.channel.send(
+            question.answer,
+            reference=message,
+            mention_author=True
+        )
+
+        await log_message.channel.send(
+            content=f"{question.answer}\n\n"
+                    f"**Unparsed**:```{question.answer}```",
+            reference=log_message,
+            components=[Button(
+                label="Go to message",
+                url=reply_message.jump_url,
+                style=ButtonStyle.url
+            )]
+        )
 
 
 def setup(bot):
