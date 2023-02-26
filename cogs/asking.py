@@ -68,6 +68,10 @@ class Asking(commands.Cog):
             if not isinstance(message.channel, DMChannel):
                 return
 
+        if len(message.content) > 800:
+            await message.reply("❌ | 請不要輸入超過800個字元的訊息")
+            return
+
         content = message.content.replace(f"<@{self.bot.user.id}>", "")
 
         if ("\\" not in content) and (str(message.author.id) in self.nicknames):
