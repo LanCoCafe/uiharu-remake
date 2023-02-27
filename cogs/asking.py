@@ -19,7 +19,7 @@ class Asking(commands.Cog):
     def __init__(self, bot: Uiharu):
         self.bot = bot
 
-        with open("nicknames.json", "r", encoding="utf-8") as f:
+        with open("nicknames.json", "r+", encoding="utf-8") as f:
             self.nicknames: dict[str, str] = json.load(f)
 
         self.question_queue: list[Question] = []
