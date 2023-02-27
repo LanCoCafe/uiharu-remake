@@ -4,6 +4,7 @@ import logging
 import random
 import re
 from os import getenv
+from os.path import isfile
 
 from aiohttp import ClientSession
 from disnake import Message, Webhook, ButtonStyle, DMChannel
@@ -19,7 +20,11 @@ class Asking(commands.Cog):
     def __init__(self, bot: Uiharu):
         self.bot = bot
 
-        with open("nicknames.json", "r+", encoding="utf-8") as f:
+        if not isfile('nicknames.json'):
+            with open("nicknames.json", "w", encoding="utf-8") as f:
+                json.dump({}, f)
+
+        with open("nicknames.json", "r", encoding="utf-8") as f:
             self.nicknames: dict[str, str] = json.load(f)
 
         self.question_queue: list[Question] = []
