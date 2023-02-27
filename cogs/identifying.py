@@ -120,7 +120,7 @@ class Identifying(commands.Cog):
 
                 continue
 
-        await interaction.edit_original_response(f"?? 再見了，{original_nickname}")
+        await interaction.edit_original_response(f"👋 再見了，{original_nickname}")
 
 
 def setup(bot: Bot):
