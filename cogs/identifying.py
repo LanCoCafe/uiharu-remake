@@ -80,12 +80,13 @@ class Identifying(commands.Cog):
 
                 break
             except PermissionError:
-                await interaction.edit_original_response("⚠️ 偵測到資料競爭，正在...")
+                await interaction.edit_original_response("⚠️ 偵測到資料競爭，正在重試...")
                 await asyncio.sleep(5)
 
                 continue
 
-        self.bot.reload_nicknames()
+        # noinspection PyUnresolvedReferences
+        interaction.bot.reload_nicknames()
 
         await interaction.edit_original_response(f"✅ 你好，{name}！", )
 
@@ -118,12 +119,13 @@ class Identifying(commands.Cog):
 
                 break
             except PermissionError:
-                await interaction.edit_original_response("⚠️ 偵測到資料競爭，正在...")
+                await interaction.edit_original_response("⚠️ 偵測到資料競爭，正在重試..")
                 await asyncio.sleep(5)
 
                 continue
 
-        self.bot.reload_nicknames()
+        # noinspection PyUnresolvedReferences
+        interaction.bot.reload_nicknames()
 
         await interaction.edit_original_response(f"👋 再見了，{original_nickname}")
 
