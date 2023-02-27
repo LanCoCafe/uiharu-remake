@@ -1,10 +1,8 @@
 import asyncio
-import json
 import logging
 import random
 import re
 from os import getenv
-from os.path import isfile
 
 from aiohttp import ClientSession
 from disnake import Message, Webhook, ButtonStyle, DMChannel
@@ -19,13 +17,6 @@ from core.classes import Question
 class Asking(commands.Cog):
     def __init__(self, bot: Uiharu):
         self.bot = bot
-
-        if not isfile('nicknames.json'):
-            with open("nicknames.json", "w", encoding="utf-8") as f:
-                json.dump({}, f)
-
-        with open("nicknames.json", "r", encoding="utf-8") as f:
-            self.nicknames: dict[str, str] = json.load(f)
 
         self.question_queue: list[Question] = []
 
@@ -79,16 +70,16 @@ class Asking(commands.Cog):
 
         content = message.content.replace(f"<@{self.bot.user.id}>", "")
 
-        if ("\\" not in content) and (str(message.author.id) in self.nicknames):
+        if ("\\" not in content) and (str(message.author.id) in self.bot.nicknames):
             content.replace("\\", "")
-            content = f"我是{self.nicknames[str(message.author.id)]}，{content}"
+            content = f"我是{self.bot.nicknames[str(message.author.id)]}，{content}"
 
         mentions = re.search("<@(\d+)>", content)
 
         if mentions:
             for match in mentions:
-                if match.group(1) in self.nicknames:
-                    content = content.replace(match, self.nicknames[match])
+                if match.group(1) in self.bot.nicknames:
+                    content = content.replace(match, self.bot.nicknames[match])
 
                 else:
                     try:

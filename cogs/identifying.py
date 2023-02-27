@@ -4,11 +4,12 @@ from io import BytesIO
 
 from disnake import ApplicationCommandInteraction, Option, OptionType, File
 from disnake.ext import commands
-from disnake.ext.commands import Bot
+
+from core.bot import Uiharu
 
 
 class Identifying(commands.Cog):
-    def __init__(self, bot: Bot):
+    def __init__(self, bot: Uiharu):
         self.bot = bot
 
     @commands.slash_command(name="nickname")
@@ -84,6 +85,8 @@ class Identifying(commands.Cog):
 
                 continue
 
+        self.bot.reload_nicknames()
+
         await interaction.edit_original_response(f"✅ 你好，{name}！", )
 
     @nickname.sub_command(
@@ -119,6 +122,8 @@ class Identifying(commands.Cog):
                 await asyncio.sleep(5)
 
                 continue
+
+        self.bot.reload_nicknames()
 
         await interaction.edit_original_response(f"👋 再見了，{original_nickname}")
 

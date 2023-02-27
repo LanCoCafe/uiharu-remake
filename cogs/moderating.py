@@ -7,8 +7,8 @@ from core.bot import Uiharu
 
 
 class Moderating(commands.Cog):
-    def __init__(self, bot):
-        self.bot: Uiharu = bot
+    def __init__(self, bot: Uiharu):
+        self.bot = bot
 
     @commands.slash_command(
         name="reset", description="重設初春的記憶",

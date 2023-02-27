@@ -1,6 +1,8 @@
+import json
 import logging
 import re
 from os import getenv
+from os.path import isfile
 from typing import Tuple
 
 from disnake import Intents
@@ -30,6 +32,17 @@ class Uiharu(OriginalBot):
         self.question_queue: list[Question] = []
 
         self.opencc = OpenCC("s2tw.json")
+
+        self.nicknames = {}
+        self.reload_nicknames()
+
+    def reload_nicknames(self):
+        if not isfile('nicknames.json'):
+            with open("nicknames.json", "w", encoding="utf-8") as f:
+                json.dump({}, f)
+
+        with open("nicknames.json", "r", encoding="utf-8") as f:
+            self.nicknames: dict[str, str] = json.load(f)
 
     async def setup_character_ai(self) -> Tuple[Page, Browser]:
         if not self.playwright:
