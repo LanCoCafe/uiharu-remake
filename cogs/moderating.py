@@ -23,7 +23,7 @@ class Moderating(commands.Cog):
     )
     async def reset(self, interaction: ApplicationCommandInteraction, ephemeral: bool = True):
         if not interaction.author.id == self.bot.owner_id:
-            return await interaction.response.send_message("你不是我的主人，不能這麼做", ephemeral=ephemeral)
+            return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做", ephemeral=ephemeral)
 
         await interaction.response.defer(ephemeral=ephemeral)
 
@@ -34,7 +34,7 @@ class Moderating(commands.Cog):
     @commands.message_command(name="刪除", description="刪除初春的訊息")
     async def delete(self, interaction: MessageCommandInteraction):
         if not interaction.author.id == self.bot.owner_id:
-            return await interaction.response.send_message("你不是我的主人，不能這麼做", ephemeral=True)
+            return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做", ephemeral=True)
 
         await interaction.target.delete()
         await interaction.response.send_message("✅ 刪除完成", ephemeral=True)
@@ -42,7 +42,7 @@ class Moderating(commands.Cog):
     @commands.message_command(name="編輯", description="編輯初春的訊息")
     async def edit(self, interaction: MessageCommandInteraction):
         if not interaction.author.id == self.bot.owner_id:
-            return await interaction.response.send_message("你不是我的主人，不能這麼做", ephemeral=True)
+            return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做", ephemeral=True)
 
         await interaction.response.send_modal(
             Modal(
