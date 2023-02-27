@@ -150,5 +150,5 @@ class Asking(commands.Cog):
         )
 
 
-def setup(bot):
+def setup(bot: Uiharu):
     bot.add_cog(Asking(bot))

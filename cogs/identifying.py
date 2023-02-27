@@ -128,5 +128,5 @@ class Identifying(commands.Cog):
         await interaction.edit_original_response(f"👋 再見了，{original_nickname}")
 
 
-def setup(bot: Bot):
+def setup(bot: Uiharu):
     bot.add_cog(Identifying(bot))

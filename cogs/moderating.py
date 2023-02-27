@@ -74,5 +74,5 @@ class Moderating(commands.Cog):
         await modal_interaction.response.send_message("✅ 編輯完成", ephemeral=True)
 
 
-def setup(bot):
+def setup(bot: Uiharu):
     bot.add_cog(Moderating(bot))
