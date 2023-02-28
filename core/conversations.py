@@ -26,7 +26,7 @@ class Conversation:
     async def ask(self, message: str) -> str:
         await self.page.get_by_placeholder("Type a message").fill(message)
         await self.page.get_by_placeholder("Type a message").press("Enter")
-        await (await self.page.wait_for_selector('.swiper-button-next', timeout=20000)).is_visible()
+        await (await self.page.wait_for_selector('.swiper-button-next', timeout=30000)).is_visible()
         div = await self.page.query_selector('div.msg.char-msg')
         output_text = await div.inner_text()
 
