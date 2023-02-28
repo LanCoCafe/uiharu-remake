@@ -112,7 +112,7 @@ class ConversationManager:
 
     async def close_conversation(self, user_id: int):
         """
-        Closes conversation for user
+        Closes conversation
         :param user_id: User ID
         :return: None
         """
@@ -125,6 +125,7 @@ class ConversationManager:
         Creates a new conversation
 
         Note: This must be called after setup_playwright()
+        :param: user_id: User ID
         :return: Conversation
         """
         logging.info(f"Finding conversation for user {user_id}")
@@ -134,6 +135,7 @@ class ConversationManager:
             return self.conversations[str(user_id)]
 
         logging.info(f"No existing conversation, creating one for user {user_id}")
+
         conversation = Conversation(self.browser, nickname=self.nicknames.get(str(user_id)))
 
         await asyncio.sleep(random.randint(3, 5))
