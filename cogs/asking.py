@@ -11,7 +11,13 @@ from disnake.ext import commands
 from disnake.ui import Button
 
 from core.bot import Uiharu
-from core.classes import Question
+
+
+class Question:
+    def __init__(self, author: abc.User, question: str):
+        self.author = author
+        self.question = question
+        self.answer = None
 
 
 class Asking(commands.Cog):
