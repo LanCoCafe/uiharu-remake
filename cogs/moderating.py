@@ -1,5 +1,7 @@
+from io import BytesIO
+
 from disnake import ApplicationCommandInteraction, TextInputStyle, MessageCommandInteraction, ModalInteraction, Option, \
-    OptionType
+    OptionType, User, NotFound, File
 from disnake.ext import commands
 from disnake.ui import Modal, TextInput
 
@@ -10,9 +12,34 @@ class Moderating(commands.Cog):
     def __init__(self, bot: Uiharu):
         self.bot = bot
 
+    def list_conversations(self) -> File:
+        file = BytesIO()
+
+        for user_id, conversation in self.bot.conversation_manager.conversations.items():
+            file.write(
+                f"{self.bot.get_user(int(user_id))}({user_id}): {conversation.nickname}\n"
+                .encode("utf-8")
+            )
+
+        file.seek(0)
+
+        return File(file, filename="conversations.txt")
+
     @commands.slash_command(
         name="reset", description="重設初春的記憶",
         options=[
+            Option(
+                name="user",
+                description="要重設的使用者 (未指定則列出所有使用者)",
+                type=OptionType.user,
+                required=False
+            ),
+            Option(
+                name="user_id",
+                description="要重設的使用者 ID (未指定則列出所有使用者)",
+                type=OptionType.string,
+                required=False
+            ),
             Option(
                 name="ephemeral",
                 description="是否要隱藏訊息",
@@ -21,13 +48,26 @@ class Moderating(commands.Cog):
             )
         ]
     )
-    async def reset(self, interaction: ApplicationCommandInteraction, ephemeral: bool = True):
+    async def reset(self, interaction: ApplicationCommandInteraction,
+                    user: User = None, user_id: str = None, ephemeral: bool = True):
         if not interaction.author.id == self.bot.owner_id:
             return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做", ephemeral=ephemeral)
 
         await interaction.response.defer(ephemeral=ephemeral)
 
-        await self.bot.setup_character_ai()
+        if not user:
+            try:
+                user = self.bot.get_user(int(user_id))
+            except TypeError:
+                return await interaction.edit_original_response(
+                    "📃 這些是正在進行中的對話", file=self.list_conversations()
+                )
+            except NotFound:
+                return await interaction.edit_original_response("❌ 找不到這個使用者")
+
+        await interaction.edit_original_response(f"⌛ 正在重設對 {user} 的記憶")
+
+        await self.bot.conversation_manager.close_conversation(user.id)
 
         await interaction.edit_original_response("✅ 重設完成")
 
