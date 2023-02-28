@@ -42,7 +42,7 @@ class Asking(commands.Cog):
 
                 for i in range(2):
                     try:
-                        question.answer = await conversation.ask(question.question)
+                        question.answer = await asyncio.wait_for(conversation.ask(question.question), 30)
 
                         break
 
