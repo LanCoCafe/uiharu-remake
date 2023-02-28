@@ -24,6 +24,8 @@ class Conversation:
         self.nickname = nickname
 
     async def ask(self, message: str) -> str:
+        logging.info("Asking question: " + message)
+
         await self.page.get_by_placeholder("Type a message").fill(message)
         await self.page.get_by_placeholder("Type a message").press("Enter")
         await (await self.page.wait_for_selector('.swiper-button-next', timeout=30000)).is_visible()
@@ -32,7 +34,11 @@ class Conversation:
 
         result = StaticVariables.OPENCC.convert(output_text)
 
-        return re.sub(r"\n+", "\n", result)
+        parsed = re.sub(r"\n+", "\n", result)
+
+        logging.info("Answer: " + parsed)
+
+        return parsed
 
     async def setup(self, delay: int = 0) -> Page:
         """

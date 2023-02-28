@@ -42,11 +42,7 @@ class Asking(commands.Cog):
 
                 for i in range(2):
                     try:
-                        logging.info(f"Asking question: {question.question}")
-
                         question.answer = await conversation.ask(question.question)
-
-                        logging.info(f"Got response: {question.answer}")
 
                         break
 
