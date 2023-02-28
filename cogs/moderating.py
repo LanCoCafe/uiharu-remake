@@ -69,7 +69,7 @@ class Moderating(commands.Cog):
 
         await self.bot.conversation_manager.close_conversation(user.id)
 
-        await interaction.edit_original_response("✅ 重設完成")
+        await interaction.edit_original_response(f"✅ 成功重設對 {user} 的記憶")
 
     @commands.message_command(name="刪除", description="刪除初春的訊息")
     async def delete(self, interaction: MessageCommandInteraction):
