@@ -58,7 +58,7 @@ class Conversation:
 
         if self.nickname:
             try:
-                await asyncio.wait_for(self.ask(f"我是{self.nickname}"), 30)
+                await asyncio.wait_for(self.ask(f"我是{self.nickname}"), 40)
             except TimeoutError:
                 pass
 
