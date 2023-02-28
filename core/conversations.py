@@ -106,7 +106,7 @@ class ConversationManager:
             self.playwright = await async_playwright().start()
 
         if not self.browser:
-            self.browser = await self.playwright.firefox.launch(headless=False)
+            self.browser = await self.playwright.firefox.launch(headless=True)
 
         return self.playwright, self.browser
 
