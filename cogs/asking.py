@@ -1,11 +1,10 @@
 import asyncio
 import logging
 import random
-import re
 from os import getenv
 
 from aiohttp import ClientSession
-from disnake import Message, Webhook, ButtonStyle, DMChannel
+from disnake import Message, Webhook, ButtonStyle, DMChannel, abc
 from disnake.abc import MISSING
 from disnake.ext import commands
 from disnake.ui import Button
@@ -39,17 +38,24 @@ class Asking(commands.Cog):
 
                 last_error: Exception = MISSING
 
+                conversation = await self.bot.conversation_manager.get_conversation(question.author.id)
+
                 for i in range(2):
                     try:
                         logging.info(f"Asking question: {question.question}")
-                        question.answer = await self.bot.ask(question.question)
+
+                        question.answer = await conversation.ask(question.question)
+
                         logging.info(f"Got response: {question.answer}")
+
                         break
 
                     except Exception as error:
                         last_error = error
+
                         logging.error(f"Failed to ask question {question.question} with error {error}, retrying...")
-                        await self.bot.setup_character_ai()
+
+                        await conversation.reset()
 
                         continue
 
@@ -74,26 +80,24 @@ class Asking(commands.Cog):
             await message.reply("❌ | 請不要輸入超過800個字元的訊息")
             return
 
+        await self.bot.wait_until_ready()
+
         content = message.content.replace(f"<@{self.bot.user.id}>", "")
 
-        if ("\\" not in content) and (str(message.author.id) in self.bot.nicknames):
-            content.replace("\\", "")
-            content = f"我是{self.bot.nicknames[str(message.author.id)]}，{content}"
-
-        mentions = re.search("<@(\d+)>", content)
-
-        if mentions:
-            for match in mentions:
-                if match.group(1) in self.bot.nicknames:
-                    content = content.replace(match, self.bot.nicknames[match])
-
-                else:
-                    try:
-                        member = message.guild.get_member(match.group(1))
-                        content = content.replace(match, member.display_name)
-
-                    except AttributeError:
-                        pass
+        # mentions = re.search("<@(\d+)>", content)
+        #
+        # if mentions:
+        #     for match in mentions:
+        #         if match.group(1) in self.conversation_manager.nicknames:
+        #             content = content.replace(match, self.bot.nicknames[match])
+        #
+        #         else:
+        #             try:
+        #                 member = message.guild.get_member(match.group(1))
+        #                 content = content.replace(match, member.display_name)
+        #
+        #             except AttributeError:
+        #                 pass
 
         if message.guild:
             data_string = f"GUILD_ID={message.guild.id} CHANNEL_ID={message.channel.id} USER_ID={message.author.id}"
@@ -115,7 +119,7 @@ class Asking(commands.Cog):
 
         logging.info(f"New question from {message.author}: {content}")
 
-        question = Question(content)
+        question = Question(message.author, content)
 
         self.question_queue.append(question)
 
