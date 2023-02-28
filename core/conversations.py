@@ -65,8 +65,11 @@ class Conversation:
         """
         if self.page:
             await self.page.close()
+            self.page = MISSING
 
-        return await self.setup(delay=3)
+        await self.setup(delay=3)
+
+        return self.page
 
     async def close(self):
         """
