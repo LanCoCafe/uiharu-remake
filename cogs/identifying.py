@@ -67,8 +67,8 @@ class Identifying(commands.Cog):
     async def nickname_set(self, interaction: ApplicationCommandInteraction, name: str, ephemeral: bool = False):
         await interaction.response.send_message("⌛ 正在寫入資料...", ephemeral=ephemeral)
 
-        for not_allowed_names in ["初春", "uiharu", "Uiharu", "Nathan", "Nat1an", "奈森"]:
-            if (name in not_allowed_names) and (not interaction.author.id == self.bot.owner_id):
+        for not_allowed_name in ["初春", "uiharu", "Uiharu", "Nathan", "Nat1an", "奈森"]:
+            if (name in not_allowed_name) and (not interaction.author.id == self.bot.owner_id):
                 return await interaction.edit_original_response("❌ You cannot use this name for some reason.")
 
         while True:
