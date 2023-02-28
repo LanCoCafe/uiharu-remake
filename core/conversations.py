@@ -51,7 +51,7 @@ class Conversation:
         await asyncio.sleep(delay=2)
 
         if self.nickname:
-            await self.ask(f"我是 {self.nickname}")
+            await self.ask(f"我是{self.nickname}")
 
         await asyncio.sleep(delay)
 
