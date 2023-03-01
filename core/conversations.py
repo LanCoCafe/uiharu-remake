@@ -176,14 +176,14 @@ class Conversation:
 
         await asyncio.sleep(delay=2)
 
-        if not self.running_loop:
-            self.running_loop = self.bot.loop.create_task(self.asking_loop())
-
         if self.nickname:
             try:
                 await asyncio.wait_for(self.__ask(Question(f"我是{self.nickname}")), 40)
             except TimeoutError:
                 pass
+
+        if not self.running_loop:
+            self.running_loop = self.bot.loop.create_task(self.asking_loop())
 
         await asyncio.sleep(delay)
 
