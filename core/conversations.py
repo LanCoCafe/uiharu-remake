@@ -3,7 +3,6 @@ import json
 import logging
 import random
 import re
-from asyncio import Task
 from os import getenv
 from os.path import isfile
 from typing import Tuple
@@ -73,7 +72,7 @@ class Conversation:
 
         self.question_queue: list[Question] = []
 
-        self.running_loop: Task = MISSING
+        self.__running = False
 
     async def ask(self, bot: "Uiharu", message: Message) -> str:
         """
@@ -101,8 +100,10 @@ class Conversation:
     async def asking_loop(self):
         timer_s = 0
 
-        if self.running_loop:
+        if self.__running:
             raise RuntimeError("Conversation is already running.")
+
+        self.__running = True
 
         while True:
             await asyncio.sleep(1)
@@ -160,12 +161,12 @@ class Conversation:
 
         return parsed
 
-    async def setup(self, delay: int = 0) -> Page:
+    async def setup(self, delay: int = 0) -> "Conversation":
         """
         Setup browser and page for this conversation if not exists
 
         :param delay: Delay before returning
-        :return: Page
+        :return: Conversation
         """
         if not self.page:
             context = await self.browser.new_context()
@@ -182,12 +183,12 @@ class Conversation:
             except TimeoutError:
                 pass
 
-        if not self.running_loop:
-            self.running_loop = self.bot.loop.create_task(self.asking_loop())
-
         await asyncio.sleep(delay)
 
-        return self.page
+        if not self.__running:
+            self.bot.loop.create_task(self.asking_loop())
+
+        return self
 
     async def reset(self) -> Page:
         """
@@ -213,7 +214,7 @@ class Conversation:
         if self.page:
             await self.page.close()
 
-        self.running_loop.cancel()
+        self.asking_loop()
 
 
 class ConversationManager:
