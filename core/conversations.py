@@ -104,8 +104,6 @@ class Conversation:
         if self.running_loop:
             raise RuntimeError("Conversation is already running.")
 
-        self.__running = True
-
         while True:
             await asyncio.sleep(1)
 
@@ -178,7 +176,7 @@ class Conversation:
 
         await asyncio.sleep(delay=2)
 
-        if not self.__running:
+        if not self.running_loop:
             self.running_loop = self.bot.loop.create_task(self.asking_loop())
 
         if self.nickname:
