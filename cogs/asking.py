@@ -33,6 +33,13 @@ class Asking(commands.Cog):
             await message.reply("❌ | 請不要輸入超過800個字元的訊息")
             return
 
+        # TODO: Configurable blacklist
+        blacklisted_words = ["lolicon", "蘿莉控", "羅莉控", "ロリ"]
+
+        for word in blacklisted_words:
+            if word in message.content:
+                return
+
         await self.bot.wait_until_ready()
 
         if message.guild:
