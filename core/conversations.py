@@ -3,10 +3,12 @@ import json
 import logging
 import random
 import re
+from asyncio import Task
 from os import getenv
 from os.path import isfile
 from typing import Tuple
 
+from disnake import Message
 # noinspection PyProtectedMember
 from disnake.abc import MISSING
 from playwright.async_api import Playwright, async_playwright, Browser, Page
@@ -14,27 +16,147 @@ from playwright.async_api import Playwright, async_playwright, Browser, Page
 from core.static_variables import StaticVariables
 
 
+class Question:
+    def __init__(self, question: str):
+        self.question = question
+        self.answer = None
+
+    def process_and_assign_answer(self, raw_answer: str) -> str:
+        result = StaticVariables.OPENCC.convert(raw_answer)
+
+        parsed = re.sub(r"\n+", "\n", result)
+
+        self.answer = parsed
+
+        return parsed
+
+    @classmethod
+    def from_message(cls, bot: "Uiharu", message: Message):
+        """
+        Creates a question from a message. This will also process the inputs.
+        :param bot: Bot instance
+        :param message: Message to create question from
+        :return:
+        """
+        content = message.content.replace(f"<@{bot.user.id}>", "")
+
+        mentions = re.findall(r"<@(\d+)>", content)
+
+        if mentions:
+            for match in mentions:
+                if match in bot.conversation_manager.nicknames:
+                    content = content.replace(match, bot.conversation_manager.nicknames[match])
+                    continue
+
+                try:
+                    member = message.guild.get_member(match)
+                    content = content.replace(match, member.display_name)
+
+                except AttributeError:
+                    continue
+
+        return cls(content)
+
+
 class Conversation:
     def __init__(self,
+                 bot: "Uiharu",
+                 author_id: int,
                  browser: Browser = MISSING,
                  page: Page = MISSING,
                  nickname: str = MISSING):
+        self.bot = bot
+        self.author_id = author_id
         self.browser = browser
         self.page = page
         self.nickname = nickname
 
-    async def ask(self, message: str) -> str:
-        logging.info("Asking question: " + message)
+        self.question_queue: list[Question] = []
 
-        await self.page.get_by_placeholder("Type a message").fill(message)
+        self.running_loop: Task = MISSING
+
+    async def ask(self, bot: "Uiharu", message: Message) -> str:
+        """
+        Asks question from a message. This will block until the question is answered.
+        :param bot: Bot instance
+        :param message: Message to ask
+        :return: Parsed answer
+        """
+        question = Question.from_message(bot, message)
+
+        self.question_queue.append(question)
+
+        timer = 0
+
+        while not question.answer:
+            await asyncio.sleep(1)
+
+            if timer % 9 == 0 or timer == 0:  # Trigger typing for every 9 seconds
+                await message.channel.trigger_typing()
+
+            timer += 1
+
+        return question.answer
+
+    async def asking_loop(self):
+        timer_s = 0
+
+        if self.running_loop:
+            raise RuntimeError("Conversation is already running.")
+
+        self.__running = True
+
+        while True:
+            await asyncio.sleep(1)
+
+            if self.question_queue:
+                timer_s = 0  # Reset the idle timer
+
+                question = self.question_queue.pop(0)
+
+                last_error: Exception = MISSING
+
+                for i in range(2):
+                    try:
+                        if last_error:
+                            await self.reset()
+
+                            last_error = MISSING
+
+                        await self.__ask(question)
+                        break
+
+                    except Exception as error:
+                        last_error = error
+
+                        logging.error(f"Failed to ask question {question.question} with error {error}, retrying...")
+
+                        continue
+
+                if not question.answer:
+                    logging.error(f"Failed to ask question {question.question} with error {last_error}")
+                    question.answer = "❌ | 發生了一些錯誤，重問一次通常可以解決問題"
+
+            timer_s += 1
+
+            if timer_s >= 1800:
+                await self.bot.conversation_manager.close_conversation(self.author_id)
+
+    async def __ask(self, question: Question) -> str:
+        """
+        Ask a question. This will assign the answer to the question object.
+        :param question: Question to ask
+        :return: Parsed Answer
+        """
+        logging.info("Asking question: " + question.question)
+
+        await self.page.get_by_placeholder("Type a message").fill(question.question)
         await self.page.get_by_placeholder("Type a message").press("Enter")
         await (await self.page.wait_for_selector('.swiper-button-next', timeout=30000)).is_visible()
         div = await self.page.query_selector('div.msg.char-msg')
         output_text = await div.inner_text()
 
-        result = StaticVariables.OPENCC.convert(output_text)
-
-        parsed = re.sub(r"\n+", "\n", result)
+        parsed = question.process_and_assign_answer(output_text)
 
         logging.info("Answer: " + parsed)
 
@@ -56,9 +178,12 @@ class Conversation:
 
         await asyncio.sleep(delay=2)
 
+        if not self.__running:
+            self.running_loop = self.bot.loop.create_task(self.asking_loop())
+
         if self.nickname:
             try:
-                await asyncio.wait_for(self.ask(f"我是{self.nickname}"), 40)
+                await asyncio.wait_for(self.__ask(Question(f"我是{self.nickname}")), 40)
             except TimeoutError:
                 pass
 
@@ -84,14 +209,18 @@ class Conversation:
         """
         Closes browser and page for this conversation
 
+        Note: This will not remove the conversation from the manager, use ConversationManager.close_conversation() instead
         :return: None
         """
         if self.page:
             await self.page.close()
 
+        self.running_loop.cancel()
+
 
 class ConversationManager:
-    def __init__(self, playwright: Playwright = MISSING):
+    def __init__(self, bot: "Uiharu", playwright: Playwright = MISSING):
+        self.bot = bot
         self.playwright = playwright
         self.browser = MISSING
 
@@ -148,7 +277,7 @@ class ConversationManager:
 
         logging.info(f"No existing conversation, creating one for user {user_id}")
 
-        conversation = Conversation(self.browser, nickname=self.nicknames.get(str(user_id)))
+        conversation = Conversation(self.bot, user_id, self.browser, nickname=self.nicknames.get(str(user_id)))
 
         await asyncio.sleep(random.randint(3, 5))
 

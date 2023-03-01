@@ -12,9 +12,11 @@ class Uiharu(OriginalBot):
         :param args: args to pass to the bot
         :param kwargs: kwargs to pass to the bot
         """
-        super().__init__(intents=Intents.all(), *args, **kwargs)
+        intents = Intents.message_content | Intents.guilds | Intents.members | Intents.messages | Intents.reactions
 
-        self.conversation_manager = ConversationManager()
+        super().__init__(intents=intents, *args, **kwargs)
+
+        self.conversation_manager = ConversationManager(self)
 
     async def on_ready(self):
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
