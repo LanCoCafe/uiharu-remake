@@ -34,10 +34,10 @@ class Asking(commands.Cog):
             return
 
         # TODO: Configurable blacklist
-        blacklisted_words = ["lolicon", "蘿莉控", "羅莉控", "ロリ"]
+        blacklisted_words = ["lolicon", "蘿莉控", "羅莉控", "ロリ", "夢莉", "ㄌㄌ", "ll"]
 
         for word in blacklisted_words:
-            if word in message.content:
+            if word in message.content.lower():
                 return
 
         await self.bot.wait_until_ready()
