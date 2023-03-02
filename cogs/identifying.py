@@ -2,7 +2,7 @@ import asyncio
 import json
 from io import BytesIO
 
-from disnake import ApplicationCommandInteraction, Option, OptionType, File
+from disnake import ApplicationCommandInteraction, Option, OptionType, File, User
 from disnake.ext import commands
 
 from core.bot import Uiharu
@@ -57,6 +57,12 @@ class Identifying(commands.Cog):
                 required=True
             ),
             Option(
+                name="user",
+                description="要設定的使用者 (未指定則設定自己)",
+                type=OptionType.user,
+                required=False
+            ),
+            Option(
                 name="ephemeral",
                 description="是否要隱藏訊息",
                 type=OptionType.boolean,
@@ -64,11 +70,19 @@ class Identifying(commands.Cog):
             )
         ]
     )
-    async def nickname_set(self, interaction: ApplicationCommandInteraction, name: str, ephemeral: bool = False):
+    async def nickname_set(self, interaction: ApplicationCommandInteraction,
+                           name: str, user: User = None, ephemeral: bool = False):
+
+        if user and (not interaction.author.id == self.bot.owner_id):
+            return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做", ephemeral=ephemeral)
+
+        if not user:
+            user = interaction.author
+
         await interaction.response.send_message("⌛ 正在寫入資料...", ephemeral=ephemeral)
 
         for not_allowed_name in ["初春", "uiharu", "Uiharu", "Nathan", "Nat1an", "奈森"]:
-            if (name in not_allowed_name) and (not interaction.author.id == interaction.bot.owner_id):
+            if (name in not_allowed_name) and (not user.id == interaction.bot.owner_id):
                 return await interaction.edit_original_response("❌ You cannot use this name for some reason.")
 
         while True:
@@ -76,7 +90,7 @@ class Identifying(commands.Cog):
                 with open("nicknames.json", "r+", encoding="utf-8") as f:
                     nicknames = json.load(f)
 
-                    nicknames[str(interaction.author.id)] = name
+                    nicknames[str(user.id)] = name
 
                     f.seek(0)
                     json.dump(nicknames, f, indent=4, ensure_ascii=False)
@@ -98,6 +112,12 @@ class Identifying(commands.Cog):
         name="remove", description="將你的名字從移出初春的記憶",
         options=[
             Option(
+                name="user",
+                description="要設定的使用者 (未指定則設定自己)",
+                type=OptionType.user,
+                required=False
+            ),
+            Option(
                 name="ephemeral",
                 description="是否要隱藏訊息",
                 type=OptionType.boolean,
@@ -105,7 +125,14 @@ class Identifying(commands.Cog):
             )
         ]
     )
-    async def nickname_set(self, interaction: ApplicationCommandInteraction, ephemeral: bool = False):
+    async def nickname_set(self, interaction: ApplicationCommandInteraction,
+                           user: User, ephemeral: bool = False):
+        if user and (not interaction.author.id == self.bot.owner_id):
+            return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做", ephemeral=ephemeral)
+
+        if not user:
+            user = interaction.author
+
         await interaction.response.send_message("⌛ 正在寫入資料...", ephemeral=ephemeral)
 
         while True:
@@ -113,9 +140,9 @@ class Identifying(commands.Cog):
                 with open("nicknames.json", "r+", encoding="utf-8") as f:
                     nicknames = json.load(f)
 
-                    original_nickname = nicknames[str(interaction.author.id)]
+                    original_nickname = nicknames[str(user.id)]
 
-                    del nicknames[str(interaction.author.id)]
+                    del nicknames[str(user.id)]
 
                     f.seek(0)
                     json.dump(nicknames, f, indent=4, ensure_ascii=False)
