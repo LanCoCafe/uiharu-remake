@@ -3,7 +3,7 @@ import json
 import logging
 import random
 import re
-from enum import Enum
+from asyncio import Task
 from os import getenv
 from os.path import isfile
 from typing import Tuple
@@ -14,12 +14,6 @@ from disnake.abc import MISSING
 from playwright.async_api import Playwright, async_playwright, Browser, Page
 
 from core.static_variables import StaticVariables
-
-
-class ConversationState(Enum):
-    NORMAL = 0
-    SHOULD_STOP = 1
-    STOPPED = 2
 
 
 class Question:
@@ -79,9 +73,7 @@ class Conversation:
 
         self.question_queue: list[Question] = []
 
-        self.__running = False
-
-        self.state = ConversationState.NORMAL
+        self.loop: Task = MISSING
 
     async def ask(self, bot: "Uiharu", message: Message) -> str:
         """
@@ -109,10 +101,8 @@ class Conversation:
     async def asking_loop(self):
         timer_s = 0
 
-        if self.__running:
+        if self.loop:
             raise RuntimeError("Conversation is already running.")
-
-        self.__running = True
 
         while True:
             await asyncio.sleep(1)
@@ -149,11 +139,6 @@ class Conversation:
 
             if timer_s >= 1800:
                 await self.bot.conversation_manager.close_conversation(self.author_id)
-
-            if self.state == ConversationState.SHOULD_STOP:
-                self.state = ConversationState.STOPPED
-
-                break
 
     async def __ask(self, question: Question) -> str:
         """
@@ -199,8 +184,8 @@ class Conversation:
 
         await asyncio.sleep(delay)
 
-        if not self.__running:
-            self.bot.loop.create_task(self.asking_loop())
+        if not self.loop:
+            self.loop = asyncio.create_task(self.asking_loop())
 
         return self
 
@@ -228,13 +213,7 @@ class Conversation:
         if self.page:
             await self.page.close()
 
-        while self.question_queue:  # Sleep until all questions are answered
-            await asyncio.sleep(1)
-
-        self.state = ConversationState.SHOULD_STOP
-
-        while self.state != ConversationState.STOPPED:  # Wait until the loop is stopped
-            await asyncio.sleep(1)
+        self.loop.cancel()
 
         return
 
