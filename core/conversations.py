@@ -101,9 +101,6 @@ class Conversation:
     async def asking_loop(self):
         timer_s = 0
 
-        if self.loop:
-            raise RuntimeError("Conversation is already running.")
-
         while True:
             await asyncio.sleep(1)
 
@@ -185,7 +182,7 @@ class Conversation:
         await asyncio.sleep(delay)
 
         if not self.loop:
-            self.loop = asyncio.create_task(self.asking_loop())
+            self.loop = asyncio.ensure_future(self.asking_loop())
 
         return self
 
