@@ -1,4 +1,3 @@
-import json
 from io import BytesIO
 
 from disnake import ApplicationCommandInteraction, Option, OptionType, File, User
@@ -32,8 +31,8 @@ class Identifying(commands.Cog):
 
         await interaction.response.send_message("⌛ 正在讀取資料...", ephemeral=ephemeral)
 
-        with open("nicknames.json", "r", encoding="utf-8") as f:
-            nicknames = json.load(f)
+        # noinspection PyUnresolvedReferences
+        nicknames = interaction.bot.nickname_manager.list_nicknames()
 
         nicknames_string = BytesIO()
 
