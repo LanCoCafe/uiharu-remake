@@ -1,4 +1,3 @@
-import asyncio
 import json
 from io import BytesIO
 
@@ -85,26 +84,8 @@ class Identifying(commands.Cog):
             if (name in not_allowed_name) and (not user.id == interaction.bot.owner_id):
                 return await interaction.edit_original_response("❌ You cannot use this name for some reason.")
 
-        while True:
-            try:
-                with open("nicknames.json", "r+", encoding="utf-8") as f:
-                    nicknames = json.load(f)
-
-                    nicknames[str(user.id)] = name
-
-                    f.seek(0)
-                    json.dump(nicknames, f, indent=4, ensure_ascii=False)
-                    f.truncate()
-
-                break
-            except PermissionError:
-                await interaction.edit_original_response("⚠️ 偵測到資料競爭，正在重試...")
-                await asyncio.sleep(5)
-
-                continue
-
         # noinspection PyUnresolvedReferences
-        interaction.bot.conversation_manager.reload_nicknames()
+        interaction.bot.nickname_manager.set_nickname(user_id=user.id, nickname=name, locked=False)
 
         await interaction.edit_original_response(f"✅ 你好，{name}！", )
 
@@ -135,28 +116,8 @@ class Identifying(commands.Cog):
 
         await interaction.response.send_message("⌛ 正在寫入資料...", ephemeral=ephemeral)
 
-        while True:
-            try:
-                with open("nicknames.json", "r+", encoding="utf-8") as f:
-                    nicknames = json.load(f)
-
-                    original_nickname = nicknames[str(user.id)]
-
-                    del nicknames[str(user.id)]
-
-                    f.seek(0)
-                    json.dump(nicknames, f, indent=4, ensure_ascii=False)
-                    f.truncate()
-
-                break
-            except PermissionError:
-                await interaction.edit_original_response("⚠️ 偵測到資料競爭，正在重試..")
-                await asyncio.sleep(5)
-
-                continue
-
         # noinspection PyUnresolvedReferences
-        interaction.bot.reload_nicknames()
+        original_nickname = interaction.bot.nickname_manager.remove_nickname(user_id=user.id)
 
         await interaction.edit_original_response(f"👋 再見了，{original_nickname}")
 

@@ -1,12 +1,10 @@
 import asyncio
-import json
 import logging
 import random
 import re
 from asyncio import Task
 from os import getenv
-from os.path import isfile
-from typing import Tuple
+from typing import Tuple, TYPE_CHECKING
 
 from disnake import Message
 # noinspection PyProtectedMember
@@ -14,6 +12,9 @@ from disnake.abc import MISSING
 from playwright.async_api import Playwright, async_playwright, Browser, Page
 
 from core.static_variables import StaticVariables
+
+if TYPE_CHECKING:
+    from core.bot import Uiharu
 
 
 class Question:
@@ -223,17 +224,6 @@ class ConversationManager:
 
         self.conversations: dict[str, Conversation] = {}
 
-        self.nicknames = {}
-        self.reload_nicknames()
-
-    def reload_nicknames(self):
-        if not isfile('nicknames.json'):
-            with open("nicknames.json", "w", encoding="utf-8") as f:
-                json.dump({}, f)
-
-        with open("nicknames.json", "r", encoding="utf-8") as f:
-            self.nicknames: dict[str, str] = json.load(f)
-
     async def setup(self) -> Tuple[Playwright, Browser]:
         """
         Setup playwright and browser for this manager if not exists
@@ -274,7 +264,9 @@ class ConversationManager:
 
         logging.info(f"No existing conversation, creating one for user {user_id}")
 
-        conversation = Conversation(self.bot, user_id, self.browser, nickname=self.nicknames.get(str(user_id)))
+        conversation = Conversation(
+            self.bot, user_id, self.browser, nickname=self.bot.nickname_manager.get_nickname(user_id=user_id)
+        )
 
         await asyncio.sleep(random.randint(3, 5))
 
