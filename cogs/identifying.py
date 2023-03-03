@@ -107,7 +107,7 @@ class Identifying(commands.Cog):
         ]
     )
     async def nickname_set(self, interaction: ApplicationCommandInteraction,
-                           user: User, ephemeral: bool = False):
+                           user: User = None, ephemeral: bool = False):
         if user and (not interaction.author.id == self.bot.owner_id):
             return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做", ephemeral=ephemeral)
 
