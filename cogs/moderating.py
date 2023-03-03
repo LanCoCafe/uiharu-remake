@@ -26,6 +26,40 @@ class Moderating(commands.Cog):
         return File(file, filename="conversations.txt")
 
     @commands.slash_command(
+        name="eval", description="邪惡，超級邪惡",
+        options=[
+            Option(
+                name="code",
+                description="要執行的程式碼",
+                type=OptionType.string,
+                required=True
+            ),
+            Option(
+                name="ephemeral",
+                description="是否要隱藏訊息",
+                type=OptionType.boolean,
+                required=False
+            )
+        ]
+
+    )
+    async def eval(self, interaction: ApplicationCommandInteraction, code: str, ephemeral: bool = True):
+        if not interaction.author.id == self.bot.owner_id:
+            return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做", ephemeral=ephemeral)
+
+        await interaction.response.defer(ephemeral=ephemeral)
+
+        try:
+            result = eval(code)
+
+        except Exception as e:
+            result = e
+
+        await interaction.edit_original_response(
+            f"```py\n{result}\n```"
+        )
+
+    @commands.slash_command(
         name="reset", description="重設初春的記憶",
         options=[
             Option(
