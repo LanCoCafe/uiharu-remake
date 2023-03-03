@@ -25,10 +25,10 @@ class Uiharu(OriginalBot):
             getenv("MONGO_URI"),
             server_api=ServerApi('1')
         )["main"]
-        
-        self.conversation_manager = ConversationManager(self)
 
         self.nickname_manager = NicknameManager(self)
+
+        self.conversation_manager = ConversationManager(self)
 
     async def on_ready(self):
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
