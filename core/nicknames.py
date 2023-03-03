@@ -17,7 +17,7 @@ class NicknameManager:
     #     "locked": boolean
     # }
 
-    def __init__(self, bot: Uiharu):
+    def __init__(self, bot: "Uiharu"):
         self.bot = bot
         self.collection: Collection = bot.db["nicknames"]
 
@@ -53,6 +53,8 @@ class NicknameManager:
         """
         if self.collection.find_one({"user_id": user_id, "locked": True}) and not force:
             raise NicknameLocked(f"{user_id} already has a locked nickname")
+
+        self.collection.update_one({"user_id": user_id}, {"$set": kwargs}, upsert=True)
 
     def remove_nickname(self, user_id: int) -> Union[str, None]:
         """
