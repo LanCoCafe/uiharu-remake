@@ -4,6 +4,7 @@ from disnake import ApplicationCommandInteraction, Option, OptionType, File, Use
 from disnake.ext import commands
 
 from core.bot import Uiharu
+from core.nicknames import NicknameLocked
 
 
 class Identifying(commands.Cog):
@@ -13,6 +14,25 @@ class Identifying(commands.Cog):
     @commands.slash_command(name="nickname")
     async def nickname(self, interaction: ApplicationCommandInteraction):
         pass
+
+    @nickname.sub_command(
+        name="lock", description="鎖定一個人的名字",
+        options=[
+            Option(type=OptionType.user, name="user", description="要鎖定的人", required=True),
+            Option(type=OptionType.boolean, name="ephemeral", description="是否要隱藏訊息", required=False)
+        ]
+    )
+    async def nickname_lock(self, interaction: ApplicationCommandInteraction, user: User, ephemeral: bool = False):
+        if not interaction.author.id == self.bot.owner_id:
+            return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做")
+
+        await interaction.response.send_message("⌛ 正在讀取資料...", ephemeral=ephemeral)
+
+        locked = self.bot.nickname_manager.lock_nickname(user)
+
+        await interaction.edit_original_response(
+            content=f"{'🔒' if locked else '🔓'} 已{'鎖定' if locked else '解鎖'} {user.mention} 的暱稱"
+        )
 
     @nickname.sub_command(
         name="list", description="列出初春的名字記憶",
@@ -83,10 +103,13 @@ class Identifying(commands.Cog):
             if (name in not_allowed_name) and (not user.id == interaction.bot.owner_id):
                 return await interaction.edit_original_response("❌ You cannot use this name for some reason.")
 
-        # noinspection PyUnresolvedReferences
-        interaction.bot.nickname_manager.set_nickname(user_id=user.id, nickname=name, locked=False)
+        try:
+            # noinspection PyUnresolvedReferences
+            interaction.bot.nickname_manager.set_nickname(user_id=user.id, nickname=name, locked=False)
+        except NicknameLocked:
+            return await interaction.edit_original_response("❌ 這個人的名字被鎖定了，你不能改變它")
 
-        await interaction.edit_original_response(f"✅ 你好，{name}！", )
+        await interaction.edit_original_response(f"✅ 你好，{name}！")
 
     @nickname.sub_command(
         name="remove", description="將你的名字從移出初春的記憶",
