@@ -23,12 +23,12 @@ class Identifying(commands.Cog):
         ]
     )
     async def nickname_lock(self, interaction: ApplicationCommandInteraction, user: User, ephemeral: bool = False):
-        if not interaction.author.id == self.bot.owner_id:
+        if not interaction.author.id == interaction.bot.owner_id:
             return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做")
 
         await interaction.response.send_message("⌛ 正在讀取資料...", ephemeral=ephemeral)
 
-        locked = self.bot.nickname_manager.lock_nickname(user)
+        locked = interaction.bot.nickname_manager.lock_nickname(user)
 
         await interaction.edit_original_response(
             content=f"{'🔒' if locked else '🔓'} 已{'鎖定' if locked else '解鎖'} {user.mention} 的暱稱"
@@ -46,7 +46,7 @@ class Identifying(commands.Cog):
         ]
     )
     async def nickname_list(self, interaction: ApplicationCommandInteraction, ephemeral: bool = False):
-        if not interaction.author.id == self.bot.owner_id:
+        if not interaction.author.id == interaction.bot.owner_id:
             return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做", ephemeral=ephemeral)
 
         await interaction.response.send_message("⌛ 正在讀取資料...", ephemeral=ephemeral)
@@ -57,7 +57,7 @@ class Identifying(commands.Cog):
         nicknames_string = BytesIO()
 
         for user_id, nickname in nicknames.items():
-            nicknames_string.write(f"{self.bot.get_user(int(user_id))}({user_id}): {nickname}\n".encode("utf-8"))
+            nicknames_string.write(f"{interaction.bot.get_user(int(user_id))}({user_id}): {nickname}\n".encode("utf-8"))
 
         nicknames_string.seek(0)
 
@@ -91,7 +91,7 @@ class Identifying(commands.Cog):
     async def nickname_set(self, interaction: ApplicationCommandInteraction,
                            name: str, user: User = None, ephemeral: bool = False):
 
-        if user and (not interaction.author.id == self.bot.owner_id):
+        if user and (not interaction.author.id == interaction.bot..owner_id):
             return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做", ephemeral=ephemeral)
 
         if not user:
@@ -130,7 +130,7 @@ class Identifying(commands.Cog):
     )
     async def nickname_set(self, interaction: ApplicationCommandInteraction,
                            user: User = None, ephemeral: bool = False):
-        if user and (not interaction.author.id == self.bot.owner_id):
+        if user and (not interaction.author.id == interaction.bot.owner_id):
             return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做", ephemeral=ephemeral)
 
         if not user:
