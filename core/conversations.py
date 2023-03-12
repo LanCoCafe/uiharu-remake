@@ -45,7 +45,7 @@ class Question:
 
         if mentions:
             for match in mentions:
-                if match in bot.conversation_manager.nicknames:
+                if match in bot.nickname_manager.nicknames:
                     content = content.replace(match, bot.conversation_manager.nicknames[match])
                     continue
 
