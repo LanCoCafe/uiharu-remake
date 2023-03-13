@@ -28,7 +28,7 @@ class Identifying(commands.Cog):
 
         await interaction.response.send_message("⌛ 正在讀取資料...", ephemeral=ephemeral)
 
-        locked = interaction.bot.nickname_manager.lock_nickname(user)
+        locked = interaction.bot.nickname_manager.lock_nickname(user.id)
 
         await interaction.edit_original_response(
             content=f"{'🔒' if locked else '🔓'} 已{'鎖定' if locked else '解鎖'} {user.mention} 的暱稱"
@@ -91,7 +91,7 @@ class Identifying(commands.Cog):
     async def nickname_set(self, interaction: ApplicationCommandInteraction,
                            name: str, user: User = None, ephemeral: bool = False):
 
-        if user and (not interaction.author.id == interaction.bot..owner_id):
+        if user and (not interaction.author.id == interaction.bot.owner_id):
             return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做", ephemeral=ephemeral)
 
         if not user:
