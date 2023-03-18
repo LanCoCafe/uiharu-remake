@@ -113,12 +113,12 @@ class Asking(commands.Cog):
         answer = await conversation.ask(self.bot, f"你好，我是 {member.display_name}")
 
         await channel.send(
-            content=answer,
+            content=f"{member.mention} {answer}",
             embed=Embed(
                 title="📝 來自 Nat1an",
                 description="這個歡迎訊息是由 AI 自動生成的\n"
-                            f"你可以透過在訊息中提及我來繼續這個對話\n"
-                            "如果你有任何問題，請直接在頻道中提出\n"
+                            f"你可以透過在訊息中提及 {self.bot.user.mention} 來繼續這個對話\n"
+                            "如果你有任何問題，歡迎直接在頻道中提出\n"
                             "希望你在 A.C.G.M City 過得開心！",
                 color=0x2b2d31
             )
