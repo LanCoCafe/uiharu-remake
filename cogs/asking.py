@@ -2,7 +2,7 @@ import logging
 from os import getenv
 
 from aiohttp import ClientSession
-from disnake import Message, Webhook, ButtonStyle, DMChannel
+from disnake import Message, Webhook, ButtonStyle, DMChannel, Member
 from disnake.ext import commands
 from disnake.ui import Button
 
@@ -94,6 +94,25 @@ class Asking(commands.Cog):
                 )
             ]
         )
+
+    # This feature is hard coded and only available for A.C.G.M City (https://discord.gg/acgmcity)
+    @commands.Cog.listener(name="on_member_join")
+    async def welcome(self, member: Member):
+        if not member.guild.id == 952461973013037106:
+            return
+
+        if member.id == self.bot.user.id:
+            return
+
+        await self.bot.wait_until_ready()
+
+        conversation = await self.bot.conversation_manager.get_conversation(member.id)
+
+        answer = await conversation.ask(self.bot, f"你好，我是 {member.display_name}")
+
+        channel = self.bot.get_channel(952461973491159076)
+
+        await channel.send(f"{answer}")
 
 
 def setup(bot: Uiharu):

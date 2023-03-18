@@ -160,11 +160,12 @@ class Conversation:
 
         return parsed
 
-    async def setup(self, delay: int = 0) -> "Conversation":
+    async def setup(self, delay: int = 0, ignore_nickname: bool = False) -> "Conversation":
         """
         Setup browser and page for this conversation if not exists
 
         :param delay: Delay before returning
+        :param ignore_nickname: Whether to ignore nickname
         :return: Conversation
         """
         if not self.page:
@@ -176,7 +177,7 @@ class Conversation:
 
         await asyncio.sleep(delay=2)
 
-        if self.nickname:
+        if self.nickname and not ignore_nickname:
             try:
                 await asyncio.wait_for(self.__ask(Question(f"我是{self.nickname}")), 40)
             except TimeoutError:
@@ -250,13 +251,14 @@ class ConversationManager:
             await self.conversations[str(user_id)].close()
             del self.conversations[str(user_id)]
 
-    async def get_conversation(self, user_id: int) -> Conversation:
+    async def get_conversation(self, user_id: int, ignore_nickname: bool = False) -> Conversation:
         """
-        Creates a new conversation
+        Creates a new conversation.
 
         Note: This must be called after setup_playwright()
         :param: user_id: User ID
-        :return: Conversation
+        :param: ignore_nickname: Whether to ignore nickname when setting up the conversation
+        :return: The conversation created
         """
         logging.info(f"Finding conversation for user {user_id}")
 
@@ -272,7 +274,7 @@ class ConversationManager:
 
         await asyncio.sleep(random.randint(3, 5))
 
-        await conversation.setup(delay=3)
+        await conversation.setup(delay=3, ignore_nickname=ignore_nickname)
 
         self.conversations[str(user_id)] = conversation
 
