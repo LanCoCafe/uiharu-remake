@@ -4,7 +4,6 @@ from os import getenv
 from aiohttp import ClientSession
 from disnake import Message, Webhook, ButtonStyle, DMChannel, Member
 from disnake.ext import commands
-from disnake.message import Message as HashableMessage
 from disnake.ui import Button
 
 from core.bot import Uiharu
@@ -109,13 +108,9 @@ class Asking(commands.Cog):
 
         channel = self.bot.get_channel(952461973491159076)
 
-        fake_message = HashableMessage()
-        fake_message.content = f"你好，我是 {member.display_name}"
-        fake_message.author = member
-
         conversation = await self.bot.conversation_manager.get_conversation(member.id)
 
-        answer = await conversation.ask(self.bot, Message(channel=channel, data=fake_message))
+        answer = await conversation.ask(self.bot, raw_question="你好，我是 {member.display_name}")
 
         await channel.send(f"{answer}")
 

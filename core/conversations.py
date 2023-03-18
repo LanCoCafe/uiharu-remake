@@ -4,7 +4,7 @@ import random
 import re
 from asyncio import Task
 from os import getenv
-from typing import Tuple, TYPE_CHECKING
+from typing import Tuple, TYPE_CHECKING, Union
 
 from disnake import Message
 # noinspection PyProtectedMember
@@ -78,14 +78,17 @@ class Conversation:
 
         self.loop: Task = MISSING
 
-    async def ask(self, bot: "Uiharu", message: Message) -> str:
+    async def ask(self, bot: "Uiharu", message: Union[Message, str]) -> str:
         """
         Asks question from a message. This will block until the question is answered.
         :param bot: Bot instance
         :param message: Message to ask
         :return: Parsed answer
         """
-        question = Question.from_message(bot, message)
+        if isinstance(message, str):
+            question = Question(message)
+        else:  # message is Message
+            question = Question.from_message(bot, message)
 
         self.question_queue.append(question)
 
