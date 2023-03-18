@@ -110,7 +110,7 @@ class Asking(commands.Cog):
 
         conversation = await self.bot.conversation_manager.get_conversation(member.id)
 
-        answer = await conversation.ask(self.bot, "你好，我是 {member.display_name}")
+        answer = await conversation.ask(self.bot, f"你好，我是 {member.display_name}")
 
         await channel.send(f"{answer}")
 
