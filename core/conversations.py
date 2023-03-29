@@ -97,7 +97,7 @@ class Conversation:
         while not question.answer:
             await asyncio.sleep(1)
 
-            if (timer % 9 == 0 or timer == 0) and isinstance(question, Message):  # Trigger typing for every 9 seconds
+            if (timer % 9 == 0 or timer == 0) and isinstance(message, Message):  # Trigger typing for every 9 seconds
                 await message.channel.trigger_typing()
 
             timer += 1
