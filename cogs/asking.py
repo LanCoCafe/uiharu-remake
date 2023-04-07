@@ -95,34 +95,34 @@ class Asking(commands.Cog):
             ]
         )
 
-    # This feature is hard coded and only available for A.C.G.M City (https://discord.gg/acgmcity)
-    @commands.Cog.listener(name="on_member_join")
-    async def welcome(self, member: Member):
-        if not member.guild.id == 952461973013037106:
-            return
-
-        if member.id == self.bot.user.id:
-            return
-
-        await self.bot.wait_until_ready()
-
-        channel = self.bot.get_channel(952461973491159076)
-
-        conversation = await self.bot.conversation_manager.get_conversation(member.id)
-
-        answer = await conversation.ask(self.bot, f"你好，我是 {member.display_name}")
-
-        await channel.send(
-            content=f"{member.mention} {answer}",
-            embed=Embed(
-                title="📝 來自 Nat1an",
-                description="這個歡迎訊息是由 AI 自動生成的\n"
-                            f"你可以透過在訊息中提及 {self.bot.user.mention} 來繼續這個對話\n"
-                            "如果你有任何問題，歡迎直接在頻道中提出\n"
-                            "希望你在 A.C.G.M City 過得開心！",
-                color=0x2b2d31
-            )
-        )
+    # # This feature is hard coded and only available for A.C.G.M City (https://discord.gg/acgmcity)
+    # @commands.Cog.listener(name="on_member_join")
+    # async def welcome(self, member: Member):
+    #     if not member.guild.id == 952461973013037106:
+    #         return
+    #
+    #     if member.id == self.bot.user.id:
+    #         return
+    #
+    #     await self.bot.wait_until_ready()
+    #
+    #     channel = self.bot.get_channel(952461973491159076)
+    #
+    #     conversation = await self.bot.conversation_manager.get_conversation(member.id)
+    #
+    #     answer = await conversation.ask(self.bot, f"你好，我是 {member.display_name}")
+    #
+    #     await channel.send(
+    #         content=f"{member.mention} {answer}",
+    #         embed=Embed(
+    #             title="📝 來自 Nat1an",
+    #             description="這個歡迎訊息是由 AI 自動生成的\n"
+    #                         f"你可以透過在訊息中提及 {self.bot.user.mention} 來繼續這個對話\n"
+    #                         "如果你有任何問題，歡迎直接在頻道中提出\n"
+    #                         "希望你在 A.C.G.M City 過得開心！",
+    #             color=0x2b2d31
+    #         )
+    #     )
 
 
 def setup(bot: Uiharu):
