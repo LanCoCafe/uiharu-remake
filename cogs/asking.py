@@ -57,6 +57,7 @@ class Asking(commands.Cog):
         logging.info(f"New question from {message.author}: {message.content}")
 
         conversation = await self.bot.conversation_manager.get_conversation(message.author.id)
+        
         try:
             answer = await conversation.ask(self.bot, message)
         except Exception as e:

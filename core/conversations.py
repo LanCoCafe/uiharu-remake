@@ -95,6 +95,11 @@ class Conversation:
         timer = 0
 
         while not question.answer:
+            if timer >= 180:
+                await self.reset()
+                
+                raise TimeoutError("Timed out")
+                
             await asyncio.sleep(1)
 
             if (timer % 9 == 0 or timer == 0) and isinstance(message, Message):  # Trigger typing for every 9 seconds
@@ -119,7 +124,7 @@ class Conversation:
 
                 for i in range(2):
                     try:
-                        if last_error:
+                        if last_error:  
                             await self.reset()
 
                             last_error = MISSING
