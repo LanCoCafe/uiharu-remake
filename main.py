@@ -13,5 +13,6 @@ def main():
 
     uiharu.run(getenv("TOKEN"))
 
-    if __name__ == "__main__":
-        main()
+
+if __name__ == "__main__":
+    main()
