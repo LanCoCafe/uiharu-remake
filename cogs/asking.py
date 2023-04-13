@@ -2,11 +2,12 @@ import logging
 from os import getenv
 
 from aiohttp import ClientSession
-from disnake import Message, Webhook, ButtonStyle, DMChannel, Embed
+from disnake import Message, Webhook, ButtonStyle, DMChannel, Embed, Color
 from disnake.ext import commands
 from disnake.ui import Button
 
 from core.bot import Uiharu
+from core.conversations import ConversationFrom
 
 
 class Asking(commands.Cog):
@@ -78,9 +79,14 @@ class Asking(commands.Cog):
                 description="你正在非 A.C.G.M City 的伺服器使用初春，\n"
                             "這會讓初春的回覆速度減慢大約 10~20 秒，\n"
                             "為了最好的使用體驗，你可以前往 A.C.G.M City 伺服器使用初春，"
-                            "Note: 在抵達 A.C.G.M City 後，請等待至少 60 秒的時間再與初春對話，來套用 A.C.G.M City 中的專屬福利\n"
-                            "https://discord.gg/acgmcity"
-            )] if (not is_acgm and source) else []
+                            "Note: 在抵達 A.C.G.M City 後，請等待至少 60 秒的時間再與初春對話，來套用 A.C.G.M City 中的專屬福利\n",
+                color=Color.yellow()
+            )] if (not is_acgm and source == ConversationFrom.NEW) else [],
+            components=[Button(
+                style=ButtonStyle.url,
+                label="A.C.G.M City",
+                url="https://discord.gg/acgmcity"
+            )] if (not is_acgm and source == ConversationFrom.NEW) else [],
         )
 
         await self.webhook.send(
