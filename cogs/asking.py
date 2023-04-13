@@ -20,7 +20,7 @@ class Asking(commands.Cog):
 
     @commands.Cog.listener(name="on_message")
     async def talk(self, message: Message):
-        is_acgm = message.guild and message.guild.id == 81384788765712384
+        is_acgm = message.guild and message.guild.id == 952461973013037106
 
         if message.author.bot:
             return
@@ -81,12 +81,12 @@ class Asking(commands.Cog):
                             "為了最好的使用體驗，你可以前往 A.C.G.M City 伺服器使用初春，\n"
                             "Note: 在抵達 A.C.G.M City 後，請等待至少 60 秒的時間再與初春對話，來套用 A.C.G.M City 中的專屬福利",
                 color=Color.yellow()
-            )] if (not is_acgm and source == ConversationFrom.NEW) else [],
+            )] if ((not is_acgm) and source == ConversationFrom.NEW) else [],
             components=[Button(
                 style=ButtonStyle.url,
                 label="A.C.G.M City",
                 url="https://discord.gg/acgmcity"
-            )] if (not is_acgm and source == ConversationFrom.NEW) else [],
+            )] if ((not is_acgm) and source == ConversationFrom.NEW) else [],
         )
 
         await self.webhook.send(
