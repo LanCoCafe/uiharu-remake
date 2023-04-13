@@ -48,11 +48,9 @@ class Moderating(commands.Cog):
             return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做", ephemeral=ephemeral)
 
         await interaction.response.defer(ephemeral=ephemeral)
-
-        # Pre-Imports
-        import asyncio
-
+        
         try:
+            import asyncio
             result = eval(code)
 
         except Exception as e:

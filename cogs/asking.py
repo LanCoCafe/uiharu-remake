@@ -3,7 +3,7 @@ import logging
 from os import getenv
 
 from aiohttp import ClientSession
-from disnake import Message, Webhook, ButtonStyle, DMChannel, Member, Embed
+from disnake import Message, Webhook, ButtonStyle, DMChannel
 from disnake.ext import commands
 from disnake.ui import Button
 
