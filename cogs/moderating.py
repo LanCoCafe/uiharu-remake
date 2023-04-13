@@ -49,6 +49,9 @@ class Moderating(commands.Cog):
 
         await interaction.response.defer(ephemeral=ephemeral)
 
+        # Pre-Imports
+        import asyncio
+
         try:
             result = eval(code)
 
