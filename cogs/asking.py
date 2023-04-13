@@ -61,7 +61,7 @@ class Asking(commands.Cog):
 
         conversation, source = await self.bot.conversation_manager.get_conversation(
             message.author.id,
-            timeout=600 if is_acgm else 60,
+            timeout=600 if is_acgm else 180,
             delay_per_message=0 if is_acgm else 10
         )
 
