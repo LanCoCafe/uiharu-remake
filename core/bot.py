@@ -17,9 +17,7 @@ class Uiharu(OriginalBot):
         :param args: args to pass to the bot
         :param kwargs: kwargs to pass to the bot
         """
-        intents = Intents.message_content | Intents.guilds | Intents.members | Intents.messages | Intents.reactions
-
-        super().__init__(intents=intents, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.db: Database = MongoClient(
             getenv("MONGO_URI"),
