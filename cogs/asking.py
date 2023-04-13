@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from os import getenv
 
@@ -19,6 +20,9 @@ class Asking(commands.Cog):
 
     @commands.Cog.listener(name="on_message")
     async def talk(self, message: Message):
+        if not message.guild.id == 952461973013037106:
+            await asyncio.sleep(20)
+
         if message.author.bot:
             return
 
