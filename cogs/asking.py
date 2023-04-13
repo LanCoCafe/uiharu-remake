@@ -78,8 +78,8 @@ class Asking(commands.Cog):
                 title="💡 | 提醒",
                 description="你正在非 A.C.G.M City 的伺服器使用初春，\n"
                             "這會讓初春的回覆速度減慢大約 10~20 秒，\n"
-                            "為了最好的使用體驗，你可以前往 A.C.G.M City 伺服器使用初春，"
-                            "Note: 在抵達 A.C.G.M City 後，請等待至少 60 秒的時間再與初春對話，來套用 A.C.G.M City 中的專屬福利\n",
+                            "為了最好的使用體驗，你可以前往 A.C.G.M City 伺服器使用初春，\n"
+                            "Note: 在抵達 A.C.G.M City 後，請等待至少 60 秒的時間再與初春對話，來套用 A.C.G.M City 中的專屬福利",
                 color=Color.yellow()
             )] if (not is_acgm and source == ConversationFrom.NEW) else [],
             components=[Button(
