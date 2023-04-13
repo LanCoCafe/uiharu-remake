@@ -1,9 +1,8 @@
-import asyncio
 import logging
 from os import getenv
 
 from aiohttp import ClientSession
-from disnake import Message, Webhook, ButtonStyle, DMChannel
+from disnake import Message, Webhook, ButtonStyle, DMChannel, Embed
 from disnake.ext import commands
 from disnake.ui import Button
 
@@ -20,8 +19,7 @@ class Asking(commands.Cog):
 
     @commands.Cog.listener(name="on_message")
     async def talk(self, message: Message):
-        if not message.guild.id == 952461973013037106:
-            await asyncio.sleep(20)
+        is_acgm = message.guild and message.guild.id == 81384788765712384
 
         if message.author.bot:
             return
@@ -60,8 +58,12 @@ class Asking(commands.Cog):
 
         logging.info(f"New question from {message.author}: {message.content}")
 
-        conversation = await self.bot.conversation_manager.get_conversation(message.author.id)
-        
+        conversation, source = await self.bot.conversation_manager.get_conversation(
+            message.author.id,
+            timeout=600 if is_acgm else 60,
+            delay_per_message=0 if is_acgm else 20
+        )
+
         try:
             answer = await conversation.ask(self.bot, message)
         except Exception as e:
@@ -70,7 +72,15 @@ class Asking(commands.Cog):
         reply_message = await message.channel.send(
             answer,
             reference=message,
-            mention_author=True
+            mention_author=True,
+            embeds=[Embed(
+                title="💡 | 提醒",
+                description="你正在非 A.C.G.M City 的伺服器使用初春，\n"
+                            "這會讓初春的回覆速度減慢大約 10~20 秒，\n"
+                            "為了最好的使用體驗，你可以前往 A.C.G.M City 伺服器使用初春，"
+                            "Note: 在抵達 A.C.G.M City 後，請等待至少 60 秒的時間再與初春對話，來套用 A.C.G.M City 中的專屬福利\n"
+                            "https://discord.gg/acgmcity"
+            )] if (not is_acgm and source) else []
         )
 
         await self.webhook.send(

@@ -3,6 +3,7 @@ import logging
 import random
 import re
 from asyncio import Task
+from enum import Enum
 from os import getenv
 from typing import Tuple, TYPE_CHECKING, Union
 
@@ -15,6 +16,11 @@ from core.static_variables import StaticVariables
 
 if TYPE_CHECKING:
     from core.bot import Uiharu
+
+
+class ConversationFrom(Enum):
+    EXISTING = 0
+    NEW = 1
 
 
 class Question:
@@ -67,12 +73,17 @@ class Conversation:
                  author_id: int,
                  browser: Browser = MISSING,
                  page: Page = MISSING,
-                 nickname: str = MISSING):
+                 nickname: str = MISSING,
+                 timeout: int = 600,
+                 delay_per_message: int = 0):
         self.bot = bot
         self.author_id = author_id
         self.browser = browser
         self.page = page
         self.nickname = nickname
+
+        self.timeout = timeout
+        self.delay_per_message = delay_per_message
 
         self.question_queue: list[Question] = []
 
@@ -97,15 +108,15 @@ class Conversation:
         while not question.answer:
             if timer >= 180:
                 await self.reset()
-                
-                raise TimeoutError("Timed out")
-                
-            await asyncio.sleep(1)
 
-            if (timer % 9 == 0 or timer == 0) and isinstance(message, Message):  # Trigger typing for every 9 seconds
+                raise TimeoutError("Timed out")
+
+            await asyncio.sleep(self.delay_per_message)
+
+            if (timer % 9 == 0 or timer == 0) and isinstance(message, Message):
                 await message.channel.trigger_typing()
 
-            timer += 1
+            timer += self.delay_per_message
 
         return question.answer
 
@@ -113,7 +124,7 @@ class Conversation:
         timer_s = 0
 
         while True:
-            await asyncio.sleep(1)
+            await asyncio.sleep(self.delay_per_message)
 
             if self.question_queue:
                 timer_s = 0  # Reset the idle timer
@@ -124,7 +135,7 @@ class Conversation:
 
                 for i in range(2):
                     try:
-                        if last_error:  
+                        if last_error:
                             await self.reset()
 
                             last_error = MISSING
@@ -145,7 +156,7 @@ class Conversation:
 
             timer_s += 1
 
-            if timer_s >= 1800:
+            if timer_s >= self.timeout:
                 await self.bot.conversation_manager.close_conversation(self.author_id)
 
     async def __ask(self, question: Question) -> str:
@@ -259,25 +270,27 @@ class ConversationManager:
             await self.conversations[str(user_id)].close()
             del self.conversations[str(user_id)]
 
-    async def get_conversation(self, user_id: int, ignore_nickname: bool = False) -> Conversation:
+    async def get_conversation(self, user_id: int, ignore_nickname: bool = False, **kwargs) \
+            -> Tuple[Conversation, ConversationFrom]:
         """
         Creates a new conversation.
 
         Note: This must be called after setup_playwright()
         :param: user_id: User ID
         :param: ignore_nickname: Whether to ignore nickname when setting up the conversation
-        :return: The conversation created
+        :param: kwargs: Keyword arguments to pass to Conversation
+        :return: The conversation created and how the conversation was created
         """
         logging.info(f"Finding conversation for user {user_id}")
 
         if str(user_id) in self.conversations:
             logging.info(f"Found conversation for user {user_id}")
-            return self.conversations[str(user_id)]
+            return self.conversations[str(user_id)], ConversationFrom.EXISTING
 
         logging.info(f"No existing conversation, creating one for user {user_id}")
 
         conversation = Conversation(
-            self.bot, user_id, self.browser, nickname=self.bot.nickname_manager.get_nickname(user_id=user_id)
+            self.bot, user_id, self.browser, nickname=self.bot.nickname_manager.get_nickname(user_id=user_id), **kwargs
         )
 
         await asyncio.sleep(random.randint(3, 5))
@@ -286,4 +299,4 @@ class ConversationManager:
 
         self.conversations[str(user_id)] = conversation
 
-        return conversation
+        return conversation, ConversationFrom.NEW
