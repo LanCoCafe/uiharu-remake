@@ -22,6 +22,9 @@ class Asking(commands.Cog):
     async def talk(self, message: Message):
         is_acgm = message.guild and message.guild.id == 952461973013037106
 
+        if message.author.id in self.bot.owner_ids:
+            is_acgm = True
+        
         if message.author.bot:
             return
 
