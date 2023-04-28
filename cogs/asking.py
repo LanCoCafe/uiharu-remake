@@ -59,16 +59,16 @@ class Asking(commands.Cog):
 
         logging.info(f"New question from {message.author}: {message.content}")
 
-        conversation, source = await self.bot.conversation_manager.get_conversation(
-            message.author.id,
-            timeout=600 if is_acgm else 180,
-            delay_per_message=0 if is_acgm else 10
-        )
-
         try:
+            conversation, source = await self.bot.conversation_manager.get_conversation(
+                message.author.id,
+                timeout=600 if is_acgm else 180,
+                delay_per_message=0 if is_acgm else 10
+            )
+
             answer = await conversation.ask(self.bot, message)
         except Exception as e:
-            answer = f"❌ | 發生錯誤: {e}"
+            answer = f"❌ | 發生錯誤，重問一次也許有幫助"
 
         reply_message = await message.channel.send(
             answer,
