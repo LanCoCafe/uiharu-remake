@@ -72,6 +72,7 @@ class Asking(commands.Cog):
             answer = await conversation.ask(self.bot, message)
         except Exception as e:
             answer = f"❌ | 發生錯誤，重問一次也許有幫助"
+            source == None
 
         reply_message = await message.channel.send(
             answer,
