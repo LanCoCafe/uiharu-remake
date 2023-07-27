@@ -6,8 +6,8 @@ from disnake.abc import Messageable
 
 async def keep_typing(channel: Messageable):
     while True:
-        await asyncio.sleep(9)
         await channel.trigger_typing()
+        await asyncio.sleep(9)
 
 
 def remove_mentions(message):
