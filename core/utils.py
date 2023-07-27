@@ -1,5 +1,6 @@
 import asyncio
 import re
+from typing import Union
 
 from disnake.abc import Messageable
 
@@ -23,7 +24,8 @@ def load_initial_prompt() -> str:
         return f.read()
 
 
-def get_initial_prompt(nickname: str) -> str:
+def get_initial_prompt(nickname: Union[str, None]) -> Union[str, None]:
+    nickname = nickname or "主人"
     return StaticVariables.INITIAL_PROMPT.replace("%nickname%", nickname)
 
 
