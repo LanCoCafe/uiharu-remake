@@ -25,7 +25,7 @@ class ForeFront:
                     "parentId": self.parent_id,
                     "workspaceId": self.workspace_id,
                     "text": text
-                },
+                }
         ) as response:
             events = SSEEvent.parse(await response.content.read())
 
