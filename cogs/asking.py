@@ -7,6 +7,7 @@ from disnake.ext import commands
 from disnake.ui import Button
 
 from core.bot import Uiharu
+from core.utils import remove_mentions, keep_typing
 
 
 class Asking(commands.Cog):
@@ -56,9 +57,13 @@ class Asking(commands.Cog):
 
         logging.info(f"New question from {message.author}: {message.content}")
 
+        task = self.bot.loop.create_task(keep_typing(message.channel))
+
         conversation = await self.bot.conversation_manager.get_conversation(message.author.id)
 
-        answer = await conversation.ask(message.content)
+        answer = await conversation.ask(remove_mentions(message.content))
+
+        task.cancel()
 
         reply_message = await message.channel.send(
             answer,
