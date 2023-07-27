@@ -1,5 +1,4 @@
 import asyncio
-from enum import Enum
 from typing import TYPE_CHECKING
 
 # noinspection PyProtectedMember
@@ -10,25 +9,6 @@ from forefront import Chat
 
 if TYPE_CHECKING:
     from core.bot import Uiharu
-
-
-class ConversationFrom(Enum):
-    EXISTING = 0
-    NEW = 1
-
-
-class Question:
-    def __init__(self,
-                 prompt: str,
-                 message_id: str,
-                 parent_message_id: str,
-                 conversation_id: str):
-        self.prompt: str = prompt
-        self.message_id: str = message_id
-        self.parent_message_id: str = parent_message_id
-        self.conversation_id: str = conversation_id
-
-        self.answer: dict = MISSING
 
 
 class Conversation:
