@@ -56,12 +56,9 @@ class Asking(commands.Cog):
 
         logging.info(f"New question from {message.author}: {message.content}")
 
-        try:
-            conversation = await self.bot.conversation_manager.get_conversation(message.author.id)
+        conversation = await self.bot.conversation_manager.get_conversation(message.author.id)
 
-            answer = await conversation.ask(self.bot, message)
-        except Exception as e:
-            answer = f"❌ | 發生錯誤，重問一次也許有幫助"
+        answer = await conversation.ask(self.bot, message.content)
 
         reply_message = await message.channel.send(
             answer,
