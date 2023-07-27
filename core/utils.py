@@ -1,3 +1,14 @@
+import re
+
+
+def remove_mentions(message):
+    mention_pattern = r"<@!?\d+>"
+
+    cleaned_message = re.sub(mention_pattern, "", message)
+
+    return cleaned_message
+
+
 def load_initial_prompt() -> str:
     with open("prompt.txt", "r", encoding="utf-8") as f:
         return f.read()
