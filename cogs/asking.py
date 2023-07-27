@@ -20,10 +20,6 @@ class Asking(commands.Cog):
 
     @commands.Cog.listener(name="on_message")
     async def talk(self, message: Message):
-        if not message.guild.id == 952461973013037106:
-            await message.reply("❌ | 由於最近的更新，你暫時只能在 A.C.G.M City 中使用這個功能")
-
-            return
 
         if message.author.bot:
             return
@@ -34,6 +30,11 @@ class Asking(commands.Cog):
         if self.bot.user.id not in [mention.id for mention in message.mentions]:
             if not isinstance(message.channel, DMChannel):
                 return
+
+        if not message.guild.id == 952461973013037106:
+            await message.reply("❌ | 由於最近的更新，你暫時只能在 A.C.G.M City 中使用這個功能")
+
+            return
 
         if len(message.content) > 800:
             await message.reply("❌ | 請不要輸入超過800個字元的訊息")
