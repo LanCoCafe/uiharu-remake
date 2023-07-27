@@ -45,10 +45,8 @@ class ForeFront:
                 json={
                     "0": {
                         "json": {
-                            {
-                                "id": chat_id,
-                                "workspaceId": self.workspace_id,
-                            }
+                            "id": chat_id,
+                            "workspaceId": self.workspace_id,
                         }
                     }
                 }
