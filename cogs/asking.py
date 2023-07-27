@@ -64,11 +64,17 @@ class Asking(commands.Cog):
 
         task = self.bot.loop.create_task(keep_typing(message.channel))
 
-        conversation = await self.bot.conversation_manager.get_conversation(message.author.id)
+        try:
+            conversation = await self.bot.conversation_manager.get_conversation(message.author.id)
+            answer = await conversation.ask(remove_mentions(message.content))
 
-        answer = await conversation.ask(remove_mentions(message.content))
+        except Exception as error:
+            logging.error(f"Error while processing question from {message.author}: {error}")
+            await message.reply("❌ | 發生了一些錯誤，請稍後再試")
+            return
 
-        task.cancel()
+        finally:
+            task.cancel()
 
         reply_message = await message.channel.send(
             answer,
