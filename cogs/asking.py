@@ -20,7 +20,6 @@ class Asking(commands.Cog):
 
     @commands.Cog.listener(name="on_message")
     async def talk(self, message: Message):
-
         if message.author.bot:
             return
 
