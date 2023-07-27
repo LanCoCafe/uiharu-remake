@@ -15,7 +15,7 @@ class Chat:
             response = await self.forefront.chat(
                 action=ChatAction.NEW,
                 chat_id="",
-                text=prompt,
+                text=prompt
             )
 
             self.chat_id = response["chatId"]
