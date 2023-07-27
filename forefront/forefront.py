@@ -40,6 +40,7 @@ class ForeFront:
         return result
 
     async def remove_chat(self, chat_id: str):
+        # TODO: Fix this
         async with self.session.post(
                 "https://chat-production-5759.up.railway.app/api/trpc/chat.removeChat?batch=1",
                 json={
@@ -51,4 +52,4 @@ class ForeFront:
                     }
                 }
         ) as response:
-            return await response.json()
+            return response
