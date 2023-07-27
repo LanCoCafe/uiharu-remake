@@ -20,6 +20,11 @@ class Asking(commands.Cog):
 
     @commands.Cog.listener(name="on_message")
     async def talk(self, message: Message):
+        if not message.guild.id == 952461973013037106:
+            await message.reply("❌ | 由於最近的更新，你暫時只能在 A.C.G.M City 中使用這個功能")
+
+            return
+
         if message.author.bot:
             return
 
