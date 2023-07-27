@@ -9,7 +9,12 @@ readme = "README.md"
 python = "^3.10"
 aiohttp = "^3.8.5"
 disnake = "^2.9.0"
+httpx = "^0.24.1"
+requests = "^2.31.0"
 
+
+[tool.poetry.group.dev.dependencies]
+doppler-env = "^0.3.1"
 
 [build-system]
 requires = ["poetry-core"]
