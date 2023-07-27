@@ -3,7 +3,7 @@ from typing import Any, Union
 
 
 class SSEEvent:
-    def __init__(self, event: str = None, data: Union[str, Any] = None):
+    def __init__(self, event: str = None, data: Union[str, dict, Any] = None):
         self.event = event
         self.data = data
 
