@@ -2,12 +2,11 @@ import logging
 from os import getenv
 
 from aiohttp import ClientSession
-from disnake import Message, Webhook, ButtonStyle, DMChannel, Embed, Color
+from disnake import Message, Webhook, ButtonStyle, DMChannel
 from disnake.ext import commands
 from disnake.ui import Button
 
 from core.bot import Uiharu
-from core.conversations import ConversationFrom
 
 
 class Asking(commands.Cog):
@@ -20,11 +19,6 @@ class Asking(commands.Cog):
 
     @commands.Cog.listener(name="on_message")
     async def talk(self, message: Message):
-        is_acgm = message.guild and message.guild.id == 952461973013037106
-
-        if message.author.id in self.bot.owner_ids:
-            is_acgm = True
-        
         if message.author.bot:
             return
 
@@ -63,34 +57,16 @@ class Asking(commands.Cog):
         logging.info(f"New question from {message.author}: {message.content}")
 
         try:
-            conversation, source = await self.bot.conversation_manager.get_conversation(
-                message.author.id,
-                timeout=600 if is_acgm else 180,
-                delay_per_message=0 if is_acgm else 10
-            )
+            conversation = await self.bot.conversation_manager.get_conversation(message.author.id)
 
             answer = await conversation.ask(self.bot, message)
         except Exception as e:
             answer = f"❌ | 發生錯誤，重問一次也許有幫助"
-            source == None
 
         reply_message = await message.channel.send(
             answer,
             reference=message,
-            mention_author=True,
-            embeds=[Embed(
-                title="💡 | 提醒",
-                description="你正在非 A.C.G.M City 的伺服器使用初春，\n"
-                            "這會讓初春的回覆速度減慢大約 10~20 秒，\n"
-                            "為了最好的使用體驗，你可以前往 A.C.G.M City 伺服器使用初春，\n"
-                            "Note: 在抵達 A.C.G.M City 後，請等待至少 60 秒的時間再與初春對話，來套用 A.C.G.M City 中的專屬福利",
-                color=Color.yellow()
-            )] if ((not is_acgm) and source == ConversationFrom.NEW) else [],
-            components=[Button(
-                style=ButtonStyle.url,
-                label="A.C.G.M City",
-                url="https://discord.gg/acgmcity"
-            )] if ((not is_acgm) and source == ConversationFrom.NEW) else [],
+            mention_author=True
         )
 
         await self.webhook.send(
