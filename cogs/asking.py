@@ -58,7 +58,7 @@ class Asking(commands.Cog):
 
         conversation = await self.bot.conversation_manager.get_conversation(message.author.id)
 
-        answer = await conversation.ask(self.bot, message.content)
+        answer = await conversation.ask(message.content)
 
         reply_message = await message.channel.send(
             answer,
