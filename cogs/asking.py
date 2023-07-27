@@ -2,7 +2,7 @@ import logging
 from os import getenv
 
 from aiohttp import ClientSession
-from disnake import Message, Webhook, ButtonStyle, DMChannel
+from disnake import Message, Webhook, ButtonStyle, DMChannel, AllowedMentions
 from disnake.ext import commands
 from disnake.ui import Button
 
@@ -73,7 +73,8 @@ class Asking(commands.Cog):
         reply_message = await message.channel.send(
             answer,
             reference=message,
-            mention_author=True
+            mention_author=True,
+            allowed_mentions=AllowedMentions.none()
         )
 
         await self.webhook.send(
