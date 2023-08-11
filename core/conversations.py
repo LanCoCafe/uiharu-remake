@@ -35,7 +35,6 @@ class Conversation:
         """
         Initialize the conversation, including sending the first message to the bot
         """
-        await self.chat.talk(get_initial_prompt(self.nickname))
         self.ready = True
 
     async def close(self):
