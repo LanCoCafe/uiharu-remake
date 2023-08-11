@@ -8,7 +8,7 @@ from pymongo.server_api import ServerApi
 
 from core.conversations import ConversationManager
 from core.nicknames import NicknameManager
-from forefront import ForeFront
+from Poe import PoeClient
 
 
 class Uiharu(OriginalBot):
@@ -24,8 +24,8 @@ class Uiharu(OriginalBot):
             server_api=ServerApi('1')
         )["main"]
 
-        self.forefront = ForeFront(
-            getenv("FOREFRONT_PARENT_ID"), getenv("FOREFRONT_WORKSPACE_ID"), getenv("FOREFRONT_TOKEN")
+        self.poe = PoeClient(
+            getenv("PB_TOKEN"), getenv("FORMKEY")
         )
 
         self.nickname_manager = NicknameManager(self)
@@ -33,4 +33,6 @@ class Uiharu(OriginalBot):
         self.conversation_manager = ConversationManager(self)
 
     async def on_ready(self):
+        await self.poe.setup()
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
+
