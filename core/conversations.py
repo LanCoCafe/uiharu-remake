@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from disnake.abc import MISSING
 
 from core.utils import get_initial_prompt
-from forefront import Chat
+from Poe import Chat
 
 if TYPE_CHECKING:
     from core.bot import Uiharu
@@ -21,7 +21,7 @@ class Conversation:
         self.author_id: int = author_id
         self.nickname: str = nickname
 
-        self.chat: Chat = Chat(bot.forefront)
+        self.chat: Chat = Chat(bot.poe)
 
         self.ready: bool = False
 
@@ -58,6 +58,7 @@ class ConversationManager:
 
     async def get_conversation(self, user_id: int) \
             -> Conversation:
+        
         if user_id in self.conversations:
             return self.conversations[user_id]
 
@@ -66,5 +67,6 @@ class ConversationManager:
         )
 
         await self.conversations[user_id].setup()
+        print("??")
 
         return self.conversations[user_id]

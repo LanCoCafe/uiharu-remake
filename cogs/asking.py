@@ -30,10 +30,10 @@ class Asking(commands.Cog):
             if not isinstance(message.channel, DMChannel):
                 return
 
-        if not message.guild.id == 952461973013037106:
-            await message.reply("❌ | 由於最近的更新，你暫時只能在 A.C.G.M City 中使用這個功能")
+        #if not message.guild.id == 952461973013037106:
+            #await message.reply("❌ | 由於最近的更新，你暫時只能在 A.C.G.M City 中使用這個功能")
 
-            return
+            #return
 
         if len(message.content) > 800:
             await message.reply("❌ | 請不要輸入超過800個字元的訊息")
