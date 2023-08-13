@@ -16,7 +16,7 @@ pymongo = {extras = ["srv"], version = "^4.4.1"}
 
 [tool.poetry.group.dev.dependencies]
 doppler-env = "^0.3.1"
-pylint = "^2.17.5"
+ruff = "^0.0.284"
 
 [build-system]
 requires = ["poetry-core"]
