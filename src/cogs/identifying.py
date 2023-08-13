@@ -3,8 +3,8 @@ from io import BytesIO
 from disnake import ApplicationCommandInteraction, Option, OptionType, File, User
 from disnake.ext import commands
 
-from core.bot import Uiharu
-from core.nicknames import NicknameLocked
+from src.bot import Uiharu
+from src.nicknames import NicknameLocked
 
 
 class Identifying(commands.Cog):

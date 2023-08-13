@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Union
 from pymongo.collection import Collection, ReturnDocument
 
 if TYPE_CHECKING:
-    from core.bot import Uiharu
+    from src.bot import Uiharu
 
 
 class NicknameLocked(Exception):

@@ -4,11 +4,11 @@ from typing import TYPE_CHECKING
 # noinspection PyProtectedMember
 from disnake.abc import MISSING
 
-from core.utils import get_initial_prompt
-from forefront import Chat
+from src.utils import get_initial_prompt
+from src.forefront import Chat
 
 if TYPE_CHECKING:
-    from core.bot import Uiharu
+    from src.bot import Uiharu
 
 
 class Conversation:

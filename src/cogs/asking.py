@@ -6,8 +6,8 @@ from disnake import Message, Webhook, ButtonStyle, DMChannel, AllowedMentions
 from disnake.ext import commands
 from disnake.ui import Button
 
-from core.bot import Uiharu
-from core.utils import remove_mentions, keep_typing
+from src.bot import Uiharu
+from src.utils import remove_mentions, keep_typing
 
 
 class Asking(commands.Cog):

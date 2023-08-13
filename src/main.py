@@ -1,7 +1,7 @@
 import logging
 from os import getenv
 
-from core.bot import Uiharu
+from src.bot import Uiharu
 
 logging.basicConfig(level=logging.INFO)
 

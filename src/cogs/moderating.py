@@ -5,7 +5,7 @@ from disnake import ApplicationCommandInteraction, TextInputStyle, MessageComman
 from disnake.ext import commands
 from disnake.ui import Modal, TextInput
 
-from core.bot import Uiharu
+from src.bot import Uiharu
 
 
 class Moderating(commands.Cog):

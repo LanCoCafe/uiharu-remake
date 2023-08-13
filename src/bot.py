@@ -6,9 +6,9 @@ from pymongo import MongoClient
 from pymongo.database import Database
 from pymongo.server_api import ServerApi
 
-from core.conversations import ConversationManager
-from core.nicknames import NicknameManager
-from forefront import ForeFront
+from src.conversations import ConversationManager
+from src.nicknames import NicknameManager
+from src.forefront import ForeFront
 
 
 class Uiharu(OriginalBot):
