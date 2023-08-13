@@ -19,13 +19,15 @@ class Uiharu(OriginalBot):
         """
         super().__init__(*args, **kwargs)
 
-        self.db: Database = MongoClient(
+        self.database: Database = MongoClient(
             getenv("MONGO_URI"),
             server_api=ServerApi('1')
         )["main"]
 
         self.forefront = ForeFront(
-            getenv("FOREFRONT_PARENT_ID"), getenv("FOREFRONT_WORKSPACE_ID"), getenv("FOREFRONT_TOKEN")
+            getenv("FOREFRONT_PARENT_ID"),
+            getenv("FOREFRONT_WORKSPACE_ID"),
+            getenv("FOREFRONT_TOKEN")
         )
 
         self.nickname_manager = NicknameManager(self)
