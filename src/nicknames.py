@@ -19,7 +19,7 @@ class NicknameManager:
 
     def __init__(self, bot: "Uiharu"):
         self.bot = bot
-        self.collection: Collection = bot.db["nicknames"]
+        self.collection: Collection = bot.database.get_collection("nicknames")
 
     def list_nicknames(self, **kwargs) -> dict[int, str]:
         """
