@@ -50,7 +50,7 @@ class Moderating(commands.Cog):
         await interaction.response.defer(ephemeral=ephemeral)
 
         try:
-            import asyncio
+            import asyncio  # noqa
             result = eval(code)
 
         except Exception as e:
