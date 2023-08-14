@@ -20,12 +20,14 @@ def remove_mentions(message):
 
 
 def load_initial_prompt() -> str:
-    with open("prompt.txt", "r", encoding="utf-8") as f:
+    with open("./prompt.txt", "r", encoding="utf-8") as f:
         return f.read()
 
 
 def get_initial_prompt(nickname: Union[str, None]) -> Union[str, None]:
-    nickname = nickname or "主人"
+    if not nickname:
+        nickname = "主人"
+
     return StaticVariables.INITIAL_PROMPT.replace("%nickname%", nickname)
 
 
