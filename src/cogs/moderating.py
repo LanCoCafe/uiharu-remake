@@ -1,7 +1,7 @@
 from io import BytesIO
 
-from disnake import ApplicationCommandInteraction, TextInputStyle, MessageCommandInteraction, ModalInteraction, Option, \
-    OptionType, User, NotFound, File
+from disnake import ApplicationCommandInteraction, TextInputStyle, MessageCommandInteraction, ModalInteraction, \
+    Option, OptionType, User, NotFound, File
 from disnake.ext import commands
 from disnake.ui import Modal, TextInput
 
