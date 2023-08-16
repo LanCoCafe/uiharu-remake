@@ -28,11 +28,16 @@ repos:
         name: TOML Structure
       - id: check-merge-conflict
         name: Merge Conflicts
-  - repo: https://github.com/psf/black
+  - repo: https://github.com/psf/black-pre-commit-mirror
     rev: 0.2.7
     hooks:
       - id: black
         args: [--safe, --quiet, --line-length=100]
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.5.0
+    hooks:
+      - id: mypy
+        args: [--strict, --ignore-missing-imports]
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.0.282
     hooks:
