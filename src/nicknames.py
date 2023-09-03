@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Union
 from pymongo.collection import Collection, ReturnDocument
 
 if TYPE_CHECKING:
-    from core.bot import Uiharu
+    from src.bot import Uiharu
 
 
 class NicknameLocked(Exception):
@@ -51,7 +51,7 @@ class NicknameManager:
         :param force: Force the nickname to be set, even if it's locked
         :param kwargs: kwargs to pass to the update_one method, possible values are nickname, locked
         """
-        if self.collection.find_one({"user_id": user_id, "locked": True}) and not force:
+        if self.collection.find_one({"user_id": user_id, "locked": 1}) and not force:
             raise NicknameLocked(f"{user_id} already has a locked nickname")
 
         self.collection.update_one({"user_id": user_id}, {"$set": kwargs}, upsert=True)
@@ -61,11 +61,14 @@ class NicknameManager:
         Toggle the locked status of a nickname.
         :param user_id: user_id to lock
         :return: True if locked, False if unlocked
+        
         """
+        print(self.collection.find_one({"user_id": user_id}))
         result = self.collection.find_one_and_update(
             {"user_id": user_id}, {"$bit": {"locked": {"xor": 1}}}, return_document=ReturnDocument.AFTER
         )
-
+        print(self.collection.find_one({"user_id": user_id}))
+        
         return result["locked"]
 
     def remove_nickname(self, user_id: int) -> Union[str, None]:

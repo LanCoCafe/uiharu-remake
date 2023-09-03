@@ -4,11 +4,11 @@ from typing import TYPE_CHECKING
 # noinspection PyProtectedMember
 from disnake.abc import MISSING
 
-from core.utils import get_initial_prompt
-from Poe import Chat
+from .utils import get_initial_prompt
+from .Poe import Chat
 
 if TYPE_CHECKING:
-    from core.bot import Uiharu
+    from src.bot import Uiharu
 
 
 class Conversation:
@@ -24,12 +24,26 @@ class Conversation:
         self.chat: Chat = Chat(bot.poe)
 
         self.ready: bool = False
+        self.queue = asyncio.Queue(maxsize=1)
 
-    async def ask(self, text: str) -> str:
-        while not self.ready:
-            await asyncio.sleep(1)
+    async def ask(self, text: str, chat_code: str | None) -> str:
+        await self.queue.put((text, chat_code))
 
-        return await self.chat.talk(text)
+        await self.process_queue()
+    
+        result = await self.queue.get()
+        print(result)
+        return result
+
+    async def process_queue(self):
+        while True:
+            text, chat_code = await self.queue.get()
+            if self.nickname:
+                result = await self.chat.talk(f"({self.nickname}) " + text, chat_code)
+            else:
+                result = await self.chat.talk(text, chat_code)
+
+            return await self.queue.put((result))
 
     async def setup(self):
         """
@@ -38,7 +52,7 @@ class Conversation:
         self.ready = True
 
     async def close(self):
-        await self.chat.remove()
+        await self.chat.remove(chat_code=self.chat.chat_id)
 
 
 class ConversationManager:
@@ -59,13 +73,15 @@ class ConversationManager:
             -> Conversation:
         
         if user_id in self.conversations:
-            return self.conversations[user_id]
+            chat_code = self.conversations[user_id].chat.chat_id
+            return self.conversations[user_id], chat_code
 
         self.conversations[user_id] = Conversation(
             self.bot, user_id, self.bot.nickname_manager.get_nickname(user_id=user_id)
         )
 
         await self.conversations[user_id].setup()
-        print("??")
 
-        return self.conversations[user_id]
+        chat_code = self.conversations[user_id].chat.chat_id
+
+        return self.conversations[user_id], chat_code

@@ -6,9 +6,9 @@ from pymongo import MongoClient
 from pymongo.database import Database
 from pymongo.server_api import ServerApi
 
-from core.conversations import ConversationManager
-from core.nicknames import NicknameManager
-from Poe import PoeClient
+from .conversations import ConversationManager
+from .nicknames import NicknameManager
+from .Poe.poe import PoeClient
 
 
 class Uiharu(OriginalBot):
@@ -25,7 +25,7 @@ class Uiharu(OriginalBot):
         )["main"]
 
         self.poe = PoeClient(
-            "FfeMrboS3SNgmI69DB5O5g%3D%3D", "c3927bd245fe72be54e5126ff689c6aa"
+            getenv("PB_TOKEN"), getenv("FORMKEY")
         )
 
         self.nickname_manager = NicknameManager(self)
@@ -34,5 +34,6 @@ class Uiharu(OriginalBot):
 
     async def on_ready(self):
         await self.poe.setup()
+        await self.poe.delete_chat_by_count(url_botname="UiharuPoe", del_all=True)
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
 

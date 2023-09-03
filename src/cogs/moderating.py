@@ -5,7 +5,7 @@ from disnake import ApplicationCommandInteraction, TextInputStyle, MessageComman
 from disnake.ext import commands
 from disnake.ui import Modal, TextInput
 
-from core.bot import Uiharu
+from src.bot import Uiharu
 
 
 class Moderating(commands.Cog):
@@ -85,7 +85,7 @@ class Moderating(commands.Cog):
     )
     async def reset(self, interaction: ApplicationCommandInteraction,
                     user: User = None, user_id: str = None, ephemeral: bool = True):
-        if interaction.author.id not in self.bot.owner_ids:
+        if interaction.author.id != 549056425943629825:
             return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做", ephemeral=ephemeral)
 
         await interaction.response.defer(ephemeral=ephemeral)

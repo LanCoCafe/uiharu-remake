@@ -6,8 +6,8 @@ from disnake import Message, Webhook, ButtonStyle, DMChannel, AllowedMentions
 from disnake.ext import commands
 from disnake.ui import Button
 
-from core.bot import Uiharu
-from core.utils import remove_mentions, keep_typing
+from src.bot import Uiharu
+from src.utils import remove_mentions, keep_typing
 
 
 class Asking(commands.Cog):
@@ -65,8 +65,8 @@ class Asking(commands.Cog):
         task = self.bot.loop.create_task(keep_typing(message.channel))
 
         try:
-            conversation = await self.bot.conversation_manager.get_conversation(message.author.id)
-            answer = await conversation.ask(remove_mentions(message.content))
+            conversation, chat_code = await self.bot.conversation_manager.get_conversation(message.author.id)
+            answer = await conversation.ask(remove_mentions(message.content), chat_code)
 
         except Exception as error:
             logging.error(f"Error while processing question from {message.author}: {error}")
@@ -75,6 +75,14 @@ class Asking(commands.Cog):
 
         finally:
             task.cancel()
+
+        if len(answer) > 1000:
+            return await message.channel.send(
+                "❌ | 輸出字數太多了!",
+                reference=message,
+                mention_author=True,
+                allowed_mentions=AllowedMentions.none()
+            )
 
         reply_message = await message.channel.send(
             answer,
