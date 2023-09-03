@@ -20,7 +20,7 @@ def remove_mentions(message):
 
 
 def load_initial_prompt() -> str:
-    with open("prompt.txt", "r", encoding="utf-8") as f:
+    with open("./prompt.txt", "r", encoding="utf-8") as f:
         return f.read()
 
 

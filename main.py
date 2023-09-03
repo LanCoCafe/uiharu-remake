@@ -9,7 +9,8 @@ logging.basicConfig(level=logging.INFO)
 def main():
     uiharu = Uiharu(command_prefix="u!", owner_ids=[int(owner_id) for owner_id in getenv("OWNER_IDS").split(",")])
 
-    uiharu.load_extensions("src/cogs")
+    uiharu.load_extensions("./src/cogs")
+
 
     uiharu.run(getenv("TOKEN"))
 

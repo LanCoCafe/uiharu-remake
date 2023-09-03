@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 # noinspection PyProtectedMember
 from disnake.abc import MISSING
 
+
 from .utils import get_initial_prompt
 from .Poe import Chat
 
@@ -20,6 +21,7 @@ class Conversation:
 
         self.author_id: int = author_id
         self.nickname: str = nickname
+
 
         self.chat: Chat = Chat(bot.poe)
 
@@ -54,7 +56,6 @@ class Conversation:
     async def close(self):
         await self.chat.remove(chat_code=self.chat.chat_id)
 
-
 class ConversationManager:
     def __init__(self, bot: "Uiharu"):
         self.bot = bot
@@ -71,16 +72,18 @@ class ConversationManager:
 
     async def get_conversation(self, user_id: int) \
             -> Conversation:
-        
+
         if user_id in self.conversations:
             chat_code = self.conversations[user_id].chat.chat_id
             return self.conversations[user_id], chat_code
+
 
         self.conversations[user_id] = Conversation(
             self.bot, user_id, self.bot.nickname_manager.get_nickname(user_id=user_id)
         )
 
         await self.conversations[user_id].setup()
+
 
         chat_code = self.conversations[user_id].chat.chat_id
 

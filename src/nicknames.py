@@ -19,7 +19,7 @@ class NicknameManager:
 
     def __init__(self, bot: "Uiharu"):
         self.bot = bot
-        self.collection: Collection = bot.db["nicknames"]
+        self.collection: Collection = bot.database.get_collection("nicknames")
 
     def list_nicknames(self, **kwargs) -> dict[int, str]:
         """
@@ -52,6 +52,7 @@ class NicknameManager:
         :param kwargs: kwargs to pass to the update_one method, possible values are nickname, locked
         """
         if self.collection.find_one({"user_id": user_id, "locked": 1}) and not force:
+
             raise NicknameLocked(f"{user_id} already has a locked nickname")
 
         self.collection.update_one({"user_id": user_id}, {"$set": kwargs}, upsert=True)
@@ -61,24 +62,12 @@ class NicknameManager:
         Toggle the locked status of a nickname.
         :param user_id: user_id to lock
         :return: True if locked, False if unlocked
-        
         """
         print(self.collection.find_one({"user_id": user_id}))
         result = self.collection.find_one_and_update(
             {"user_id": user_id}, {"$bit": {"locked": {"xor": 1}}}, return_document=ReturnDocument.AFTER
         )
-        print(self.collection.find_one({"user_id": user_id}))
         
-        return result["locked"]
-
-    def remove_nickname(self, user_id: int) -> Union[str, None]:
-        """
-        Remove a nickname from the database.
-        :param user_id: user_id to remove
-        :return: Original nickname, None if not found
-        """
-        result = self.collection.find_one_and_delete({"user_id": user_id})
-
         if result:
             return result["nickname"]
 

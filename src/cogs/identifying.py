@@ -23,7 +23,8 @@ class Identifying(commands.Cog):
         ]
     )
     async def nickname_lock(self, interaction: ApplicationCommandInteraction, user: User, ephemeral: bool = False):
-        if not interaction.author.id == 549056425943629825:
+      
+        if not interaction.author.id == interaction.bot.owner_id:
             return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做")
 
         await interaction.response.send_message("⌛ 正在讀取資料...", ephemeral=ephemeral)
@@ -46,10 +47,11 @@ class Identifying(commands.Cog):
         ]
     )
     async def nickname_list(self, interaction: ApplicationCommandInteraction, ephemeral: bool = False):
-        if not interaction.author.id == 549056425943629825:
+        if not interaction.author.id == interaction.bot.owner_id:
             return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做", ephemeral=ephemeral)
 
-        await interaction.response.send_message(f"你的名字：{interaction.user.global_name}\n⌛ 正在讀取資料...", ephemeral=ephemeral)
+        await interaction.response.send_message("⌛ 正在讀取資料...", ephemeral=ephemeral)
+
 
         # noinspection PyUnresolvedReferences
         nicknames = interaction.bot.nickname_manager.list_nicknames()
@@ -91,7 +93,8 @@ class Identifying(commands.Cog):
     async def nickname_set(self, interaction: ApplicationCommandInteraction,
                            name: str, user: User = None, ephemeral: bool = False):
 
-        if user and (not interaction.author.id == 549056425943629825):
+        if user and (not interaction.author.id == interaction.bot.owner_id):
+
             return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做", ephemeral=ephemeral)
 
         if not user:
@@ -99,13 +102,15 @@ class Identifying(commands.Cog):
 
         await interaction.response.send_message("⌛ 正在寫入資料...", ephemeral=ephemeral)
 
-        for not_allowed_name in ["初春", "uiharu", "Uiharu", "Nathan", "Nat1an", "饅頭", "鰻頭"]:
-            if (name in not_allowed_name) and (not user.id == 549056425943629825):
+        for not_allowed_name in ["初春", "uiharu", "Uiharu", "Nathan", "Nat1an", "奈森"]:
+            if (name in not_allowed_name) and (not user.id == interaction.bot.owner_id):
+
                 return await interaction.edit_original_response("❌ You cannot use this name for some reason.")
 
         try:
             # noinspection PyUnresolvedReferences
             interaction.bot.nickname_manager.set_nickname(user_id=user.id, nickname=name, locked=0)
+            
         except NicknameLocked:
             return await interaction.edit_original_response("❌ 這個人的名字被鎖定了，你不能改變它")
 
@@ -130,7 +135,8 @@ class Identifying(commands.Cog):
     )
     async def nickname_remove(self, interaction: ApplicationCommandInteraction,
                               user: User = None, ephemeral: bool = False):
-        if user and (not interaction.author.id == 549056425943629825):
+      
+        if user and (not interaction.author.id == interaction.bot.owner_id):
             return await interaction.response.send_message("❌ 你不是我的主人，你不能這麼做", ephemeral=ephemeral)
 
         if not user:
