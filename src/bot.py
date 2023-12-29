@@ -8,7 +8,6 @@ from pymongo.server_api import ServerApi
 
 from src.conversations import ConversationManager
 from src.nicknames import NicknameManager
-from src.forefront import ForeFront
 
 
 class Uiharu(OriginalBot):
@@ -23,12 +22,6 @@ class Uiharu(OriginalBot):
             getenv("MONGO_URI"),
             server_api=ServerApi('1')
         )["main"]
-
-        self.forefront = ForeFront(
-            getenv("FOREFRONT_PARENT_ID"),
-            getenv("FOREFRONT_WORKSPACE_ID"),
-            getenv("FOREFRONT_TOKEN")
-        )
 
         self.nickname_manager = NicknameManager(self)
 
