@@ -6,7 +6,7 @@ authors = ["Nat1an <nathan@nat1an.xyz>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.10.dev0"
+python = ">=3.9,<=3.10.13"
 aiohttp = "^3.8.5"
 disnake = "^2.9.0"
 httpx = "^0.24.1"
