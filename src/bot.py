@@ -2,6 +2,7 @@ import logging
 from os import getenv
 
 from disnake.ext.commands import Bot as OriginalBot
+from openai import OpenAI
 from pymongo import MongoClient
 from pymongo.database import Database
 from pymongo.server_api import ServerApi
@@ -17,6 +18,11 @@ class Uiharu(OriginalBot):
         :param kwargs: kwargs to pass to the bot
         """
         super().__init__(*args, **kwargs)
+
+        self.openai = OpenAI(
+            api_key=getenv("OPENAI_API_KEY"),
+            base_url=getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
+        )
 
         self.database: Database = MongoClient(
             getenv("MONGO_URI"),
