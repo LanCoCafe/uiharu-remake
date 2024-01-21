@@ -1,12 +1,16 @@
 import logging
 from os import getenv
 
+from dotenv import load_dotenv
+
 from src.bot import Uiharu
 
 logging.basicConfig(level=logging.INFO)
 
 
 def main():
+    load_dotenv()
+
     uiharu = Uiharu(command_prefix="u!", owner_ids=[int(owner_id) for owner_id in getenv("OWNER_IDS").split(",")])
 
     uiharu.load_extensions("./src/cogs")
